@@ -1,8 +1,12 @@
 *.class
+/.settings
+/bin
+*.project
+/shadobot.iml
+/.classpath
 
 <<<<<<< HEAD
 /pom.xml
-/shadobot.iml
 
 **/.idea
 **/out
