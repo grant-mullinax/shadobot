@@ -29,6 +29,7 @@ public class Shadobot
     public static void main(String[] args)
     {
         DiscordAPI api = Javacord.getApi(TOKEN,true);
+        final MainWindow shadobotWindow = new MainWindow();
 
         // connect
         api.connect(new FutureCallback<DiscordAPI>()
@@ -37,8 +38,8 @@ public class Shadobot
             {
                 // register listener
                 api.registerListener(new CommandListener(prefix,prefixedCommands,unprefixedCommands));
-                System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!! SHADOBOT ONLINE !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Object shadobotWindow = new MainWindow();
+                System.out.println();
+                shadobotWindow.logAdd("!!!!!!!!!!!!! SHADOBOT ONLINE !!!!!!!!!!!!!");
             }
 
 			public void onFailure(Throwable t)
