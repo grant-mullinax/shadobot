@@ -4,6 +4,8 @@
 *.project
 /shadobot.iml
 /.classpath
+/.gitattributes
+/_config.yml
 
 <<<<<<< HEAD
 /pom.xml
