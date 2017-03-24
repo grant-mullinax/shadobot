@@ -39,7 +39,8 @@ public class Shadobot
                 // register listener
                 api.registerListener(new CommandListener(prefix,prefixedCommands,unprefixedCommands));
                 System.out.println();
-                shadobotWindow.logAdd("!!!!!!!!!!!!! SHADOBOT ONLINE !!!!!!!!!!!!!");
+                shadobotWindow.logAdd(">>> SHADOBOT ONLINE <<<");
+                api.setGame("Neptunic is God");
             }
 
 			public void onFailure(Throwable t)
