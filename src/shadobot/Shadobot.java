@@ -1,10 +1,11 @@
 package shadobot;
 
-import shadobot.ShadobotWindow.MainWindow;
 import shadobot.CommandHandling.CommandDirectors.CustomPingCreator;
 import shadobot.CommandHandling.CommandDirectors.Ping;
 import shadobot.CommandHandling.CommandDirectors.RaidMute;
 import shadobot.CommandHandling.CommandListener;
+import shadobot.ShadobotInterface.MainWindow;
+import shadobot.ShadobotInterface.UserInterface;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.EventDispatcher;
@@ -19,6 +20,9 @@ public class Shadobot {
 
     public static void main(String[] args)
     {
+        System.out.println("set mainwindow");
+        UserInterface userInterface = new UserInterface(new MainWindow());
+
         IDiscordClient client = createClient(TOKEN,true);
         EventDispatcher dispatcher = client.getDispatcher();
 
@@ -29,11 +33,8 @@ public class Shadobot {
         commandListener.register(new RaidMute());
         commandListener.register(new CustomPingCreator(commandListener));
 
-
-        final MainWindow shadobotWindow = new MainWindow();
-
         System.out.println();
-        shadobotWindow.logAdd("!!!!!!!!!!!!! SHADOBOT ONLINE !!!!!!!!!!!!!");
+        userInterface.logAdd("!!!!!!!!!!!!! SHADOBOT ONLINE !!!!!!!!!!!!!");
     }
 
     public static IDiscordClient createClient(String token, boolean login) { // Returns a new instance of the Discord client

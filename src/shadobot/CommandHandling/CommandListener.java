@@ -3,6 +3,7 @@ package shadobot.CommandHandling;
 import shadobot.CommandHandling.CommandAssemblyComponents.Command;
 import shadobot.CommandHandling.CommandAssemblyComponents.CommandBuilder;
 import shadobot.CommandHandling.CommandAssemblyComponents.CommandData;
+import shadobot.ShadobotInterface.UserInterface;
 import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IMessage;
@@ -20,11 +21,14 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
     public void handle(MessageReceivedEvent event) {
         final IMessage message = event.getMessage();
 
+        //if (message.getAuthor().isBot()) return;
+
         final String[] splitMessage = message.getContent().split(" ");
         final Command command = registeredCommands.get(splitMessage[0]);
 
         if (command!=null) if (command.check(message)) {
-            System.out.println("executed command "+command.getClass().getName());
+            UserInterface.logAdd("executed command "+command.getClass().getName());
+
             command.execute(message, (splitMessage.length > 1) ? splitMessage[1] : "");
         }
     }
@@ -39,10 +43,14 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                         command.buildCommand()
                 );
 
-                System.out.println("registered "+command.getClass().getName()+" as "+alias);
+                UserInterface.logAdd("registered "+command.getClass().getName()+" as "+alias);
             }
         }else{
-            System.out.println(command.getClass().getName()+" has no annotation");
+            UserInterface.logAdd(command.getClass().getName()+" has no annotation");
         }
+    }
+
+    public void directlyRegister(String alias, Command command){
+        registeredCommands.put(alias,command);
     }
 }

@@ -1,4 +1,4 @@
-package shadobot.ShadobotWindow;
+package shadobot.ShadobotInterface;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
@@ -10,17 +10,20 @@ import java.awt.event.ActionListener;
 
 //TO-DO: SCROLLABLE TEXT PANE
 
-public class MainWindow
+public final class MainWindow
 {
 	private JFrame window;
 
-	private JButton muteButton;
 	// left side of pane
+	private JButton muteButton;
 	private JPanel serverSide;
+
 	// right side of layout
 	private JPanel logSide;
 	private JButton clearLogButton;
 	private JTextPane log;
+	private JScrollPane scrollableLog;
+
 	private StyledDocument doc;
 	private SimpleAttributeSet docStyle;
 	
@@ -40,13 +43,15 @@ public class MainWindow
 		
 		// right side
 		logSide = new JPanel();
-		logSide.setBounds(255, 10, 230, 280);
+		logSide.setBounds(255, 10, 600, 425);
 		
 		log = new JTextPane();
 		doc = log.getStyledDocument();
 		docStyle = new SimpleAttributeSet();
-		log.setPreferredSize(new Dimension(215, 180));
-		logSide.add(log, BorderLayout.NORTH);
+		log.setPreferredSize(new Dimension(550, 350));
+
+		scrollableLog = new JScrollPane(log);
+		logSide.add(scrollableLog, BorderLayout.NORTH);
 		
 		clearLogButton = new JButton("Clear Log");
 		clearLogButton.setPreferredSize(new Dimension(180, 50));
@@ -61,7 +66,7 @@ public class MainWindow
 		// total window
 		window.add(logSide, BorderLayout.EAST);
 		window.add(serverSide, BorderLayout.WEST);
-		window.setPreferredSize(new Dimension(500, 300));
+		window.setPreferredSize(new Dimension(900, 490));
 		
 		window.pack();
 		
@@ -73,35 +78,16 @@ public class MainWindow
 		try
 		{
 			doc.insertString(doc.getLength(), s + "\n", docStyle);
-			/*doc.insertString(doc.getLength(), s + "\n", docStyle);
-			doc.insertString(doc.getLength(), s + "\n", docStyle);
-			doc.insertString(doc.getLength(), s + "\n", docStyle);
-			doc.insertString(doc.getLength(), s + "\n", docStyle);
-			doc.insertString(doc.getLength(), s + "\n", docStyle);
-			doc.insertString(doc.getLength(), s + "\n", docStyle);
-			doc.insertString(doc.getLength(), s + "\n", docStyle);
-			doc.insertString(doc.getLength(), s + "\n", docStyle);
-			doc.insertString(doc.getLength(), s + "\n", docStyle);
-			doc.insertString(doc.getLength(), s + "\n", docStyle);
-			doc.insertString(doc.getLength(), s + "\n", docStyle);
-			doc.insertString(doc.getLength(), s + "\n", docStyle);
-			doc.insertString(doc.getLength(), s + "\n", docStyle);
-			doc.insertString(doc.getLength(), s + "\n", docStyle);
-			doc.insertString(doc.getLength(), s + "\n", docStyle);
-			doc.insertString(doc.getLength(), s + "\n", docStyle);
-			doc.insertString(doc.getLength(), s + "\n", docStyle);
-			doc.insertString(doc.getLength(), s + "\n", docStyle);
-			doc.insertString(doc.getLength(), s + "\n", docStyle);
-			doc.insertString(doc.getLength(), s + "\n", docStyle);
-			doc.insertString(doc.getLength(), s + "\n", docStyle);
-			doc.insertString(doc.getLength(), s + "\n", docStyle);*/
+
+			final JScrollBar verticalScrollBar = scrollableLog.getVerticalScrollBar();
+			verticalScrollBar.setValue(verticalScrollBar.getMaximum()+16);
 		} 
 		catch (BadLocationException e)
 		{
 			System.out.println(e);
 		}
 	}
-	
+
 	public void logClear()
 	{
 		log.setText("");
