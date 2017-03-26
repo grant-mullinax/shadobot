@@ -1,5 +1,7 @@
 package ShadobotWindow;
 
+import shadobot.Shadobot;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -11,6 +13,14 @@ import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyledDocument;
+
+import de.btobastian.javacord.DiscordAPI;
+import de.btobastian.javacord.entities.User;
+import de.btobastian.javacord.Javacord;
+import de.btobastian.javacord.entities.VoiceChannel;
+import de.btobastian.javacord.entities.permissions.Permissions;
+import de.btobastian.javacord.entities.permissions.Role;
+
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
 
@@ -47,7 +57,7 @@ public class MainWindow
 		muteButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e)
 			{
-				mutePressed();
+				toggleMute();
 			}
 		});
 		serverSide.add(muteButton, BorderLayout.SOUTH);
@@ -55,6 +65,12 @@ public class MainWindow
 		//to-do: functionality
 		refreshButton = new JButton("Refresh");
 		refreshButton.setPreferredSize(new Dimension(80, 50));
+		refreshButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e)
+			{
+				refreshUserTable();
+			}
+		});
 		serverSide.add(refreshButton,  BorderLayout.SOUTH);
 		
 		// right side
@@ -109,10 +125,25 @@ public class MainWindow
 		log.setText("");
 	}
 	
-	public void mutePressed()
+	public void toggleMute()
 	{
 		muteButton.setText(muteButton.getText() == "Mute" ? "Unmute" : "Mute");
 	}
 	
-	
+	public void refreshUserTable()
+	{
+		DiscordAPI api = Shadobot.getAPI();
+		
+		for(VoiceChannel vc : api.getVoiceChannels())
+		{
+			if(vc.getName().equals("General"))
+			{
+				for(Role r : vc.getServer().getRoles())
+				{
+					logAdd(r.toString());
+					logAdd(vc.getOverwrittenPermissions(r).toString());
+				}
+			}
+		}
+	}
 }

@@ -16,7 +16,7 @@ import ShadobotWindow.MainWindow;;
 public class Shadobot
 {
 
-    private static final String TOKEN = "MjM5NjEyODM0OTIzNjc1NjUw.C6dhzQ.fn9jOrqeN2fNRhcz4yESeBFvjiY";
+    private static final String TOKEN = "Mjk0OTkwNTk5NDExNTk3MzEy.C7dMYg.Wt8Skpog6u9gKKpkPIznK05QzuI";
 
     private static final String prefix = "!";
     private static List<Command> unprefixedCommands = new ArrayList<Command>();
@@ -25,10 +25,12 @@ public class Shadobot
             new CustomPingCreator().init(unprefixedCommands),
             new Ping().init()
     ));
+    
+    private static DiscordAPI api;
 
     public static void main(String[] args)
     {
-        DiscordAPI api = Javacord.getApi(TOKEN,true);
+        api = Javacord.getApi(TOKEN,true);
         final MainWindow shadobotWindow = new MainWindow();
 
         // connect
@@ -48,5 +50,10 @@ public class Shadobot
                 t.printStackTrace();
             }
         });
+    }
+    
+    public static DiscordAPI getAPI()
+    {
+    	return api;
     }
 }
