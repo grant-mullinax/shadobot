@@ -7,6 +7,8 @@ import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.JButton;
+import javax.swing.JScrollPane;
 
 //TO-DO: SCROLLABLE TEXT PANE
 
@@ -15,8 +17,9 @@ public final class MainWindow
 	private JFrame window;
 
 	// left side of pane
-	private JButton muteButton;
 	private JPanel serverSide;
+	private JButton muteButton;
+	private JButton refreshButton;
 
 	// right side of layout
 	private JPanel logSide;
@@ -26,6 +29,7 @@ public final class MainWindow
 
 	private StyledDocument doc;
 	private SimpleAttributeSet docStyle;
+	private JScrollPane logScroll;
 	
 	public MainWindow()
 	{
@@ -38,14 +42,26 @@ public final class MainWindow
 		serverSide.setBounds(10, 10, 235, 280);
 		
 		muteButton = new JButton("Mute");
-		muteButton.setBounds(10, 10, 180, 50);
+		muteButton.setPreferredSize(new Dimension(100, 50));
+		muteButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e)
+			{
+				mutePressed();
+			}
+		});
 		serverSide.add(muteButton, BorderLayout.SOUTH);
+		
+		//to-do: functionality
+		refreshButton = new JButton("Refresh");
+		refreshButton.setPreferredSize(new Dimension(80, 50));
+		serverSide.add(refreshButton,  BorderLayout.SOUTH);
 		
 		// right side
 		logSide = new JPanel();
 		logSide.setBounds(255, 10, 600, 425);
 		
 		log = new JTextPane();
+		log.setEditable(false);
 		doc = log.getStyledDocument();
 		docStyle = new SimpleAttributeSet();
 		log.setPreferredSize(new Dimension(550, 350));
@@ -60,7 +76,7 @@ public final class MainWindow
 					{
 						logClear();
 					}
-				});
+		});
 		logSide.add(clearLogButton, BorderLayout.SOUTH);
 		
 		// total window
@@ -69,6 +85,8 @@ public final class MainWindow
 		window.setPreferredSize(new Dimension(900, 490));
 		
 		window.pack();
+		
+		window.setResizable(false);
 		
 		window.setVisible(true);
 	}
@@ -92,4 +110,11 @@ public final class MainWindow
 	{
 		log.setText("");
 	}
+	
+	public void mutePressed()
+	{
+		muteButton.setText(muteButton.getText() == "Mute" ? "Unmute" : "Mute");
+	}
+	
+	
 }

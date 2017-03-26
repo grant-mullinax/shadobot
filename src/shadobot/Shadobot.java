@@ -20,7 +20,6 @@ public class Shadobot {
 
     public static void main(String[] args)
     {
-        System.out.println("set mainwindow");
         UserInterface userInterface = new UserInterface(new MainWindow());
 
         IDiscordClient client = createClient(TOKEN,true);
