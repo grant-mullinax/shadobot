@@ -1,4 +1,4 @@
-package shadobot2.CommandHandling;
+package shadobot.CommandHandling.CommandAssemblyComponents;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -16,4 +16,6 @@ public @interface CommandData {
     boolean channelMessages() default true;
 
     boolean privateMessages() default false;
+
+    boolean deletePrompt() default false;
 }

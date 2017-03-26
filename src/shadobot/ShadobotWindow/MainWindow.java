@@ -1,17 +1,12 @@
-package ShadobotWindow;
+package shadobot.ShadobotWindow;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JTextPane;
+import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyledDocument;
-import javax.swing.JButton;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 //TO-DO: SCROLLABLE TEXT PANE
 
@@ -77,7 +72,8 @@ public class MainWindow
 	{
 		try
 		{
-			doc.insertString(doc.getLength(), s + "1\n", docStyle);
+			doc.insertString(doc.getLength(), s + "\n", docStyle);
+			/*doc.insertString(doc.getLength(), s + "\n", docStyle);
 			doc.insertString(doc.getLength(), s + "\n", docStyle);
 			doc.insertString(doc.getLength(), s + "\n", docStyle);
 			doc.insertString(doc.getLength(), s + "\n", docStyle);
@@ -98,8 +94,7 @@ public class MainWindow
 			doc.insertString(doc.getLength(), s + "\n", docStyle);
 			doc.insertString(doc.getLength(), s + "\n", docStyle);
 			doc.insertString(doc.getLength(), s + "\n", docStyle);
-			doc.insertString(doc.getLength(), s + "\n", docStyle);
-			doc.insertString(doc.getLength(), s + "\n", docStyle);
+			doc.insertString(doc.getLength(), s + "\n", docStyle);*/
 		} 
 		catch (BadLocationException e)
 		{

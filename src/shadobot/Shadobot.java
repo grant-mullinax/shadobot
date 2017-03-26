@@ -1,51 +1,54 @@
 package shadobot;
 
-import com.google.common.util.concurrent.FutureCallback;
-import de.btobastian.javacord.DiscordAPI;
-import de.btobastian.javacord.Javacord;
-import shadobot.CommandHandling.Command;
+import shadobot.ShadobotWindow.MainWindow;
+import shadobot.CommandHandling.CommandDirectors.CustomPingCreator;
+import shadobot.CommandHandling.CommandDirectors.Ping;
+import shadobot.CommandHandling.CommandDirectors.RaidMute;
 import shadobot.CommandHandling.CommandListener;
-import shadobot.CommandHandling.commands.*;
+import sx.blah.discord.api.ClientBuilder;
+import sx.blah.discord.api.IDiscordClient;
+import sx.blah.discord.api.events.EventDispatcher;
+import sx.blah.discord.util.DiscordException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import ShadobotWindow.MainWindow;;
+;
 
 
-public class Shadobot
-{
-
+public class Shadobot {
     private static final String TOKEN = "MjM5NjEyODM0OTIzNjc1NjUw.C6dhzQ.fn9jOrqeN2fNRhcz4yESeBFvjiY";
-
-    private static final String prefix = "!";
-    private static List<Command> unprefixedCommands = new ArrayList<Command>();
-
-    private static List<Command> prefixedCommands = new ArrayList<Command>(Arrays.asList(
-            new CustomPingCreator().init(unprefixedCommands),
-            new Ping().init()
-    ));
+    private static final String PREFIX = "!";
 
     public static void main(String[] args)
     {
-        DiscordAPI api = Javacord.getApi(TOKEN,true);
+        IDiscordClient client = createClient(TOKEN,true);
+        EventDispatcher dispatcher = client.getDispatcher();
+
+        CommandListener commandListener = new CommandListener(PREFIX);
+        dispatcher.registerListener(commandListener);
+
+        commandListener.register(new Ping());
+        commandListener.register(new RaidMute());
+        commandListener.register(new CustomPingCreator(commandListener));
+
+
         final MainWindow shadobotWindow = new MainWindow();
 
-        // connect
-        api.connect(new FutureCallback<DiscordAPI>()
-        {
-            public void onSuccess(DiscordAPI api)
-            {
-                // register listener
-                api.registerListener(new CommandListener(prefix,prefixedCommands,unprefixedCommands));
-                System.out.println();
-                shadobotWindow.logAdd("!!!!!!!!!!!!! SHADOBOT ONLINE !!!!!!!!!!!!!");
-            }
+        System.out.println();
+        shadobotWindow.logAdd("!!!!!!!!!!!!! SHADOBOT ONLINE !!!!!!!!!!!!!");
+    }
 
-			public void onFailure(Throwable t)
-			{
-                t.printStackTrace();
+    public static IDiscordClient createClient(String token, boolean login) { // Returns a new instance of the Discord client
+        ClientBuilder clientBuilder = new ClientBuilder(); // Creates the ClientBuilder instance
+        clientBuilder.withToken(token); // Adds the login info to the builder
+        try {
+            if (login) {
+                return clientBuilder.login(); // Creates the client instance and logs the client in
+            } else {
+                return clientBuilder.build(); // Creates the client instance but it doesn't log the client in yet, you would have to call client.login() yourself
             }
-        });
+        } catch (DiscordException e) { // This is thrown if there was a problem building the client
+            e.printStackTrace();
+            return null;
+        }
     }
 }
+
