@@ -14,18 +14,8 @@ public class CustomPing extends Command{
     }
 
     @Override
-    public void execute(IMessage message, String suffix) {
-        try {
-            message.reply(reply);
-        } catch (RateLimitException e) {
-            System.err.print("Sending messages too quickly!");
-            e.printStackTrace();
-        } catch (DiscordException e) {
-            System.err.print(e.getErrorMessage());
-            e.printStackTrace();
-        } catch (MissingPermissionsException e) {
-            System.err.print("Missing permissions for channel!");
-            e.printStackTrace();
-        }
+    public void execute(IMessage message, String suffix) throws RateLimitException,DiscordException,
+            MissingPermissionsException {
+        message.reply(reply);
     }
 }

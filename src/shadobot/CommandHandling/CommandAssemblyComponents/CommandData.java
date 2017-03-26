@@ -11,11 +11,13 @@ public @interface CommandData {
 
     String example() default "N/A";
 
+    String requiredRole() default "";
+
     boolean requiresPrefix() default true;
 
-    boolean channelMessages() default true;
+    boolean takeChannelMessages() default true;
 
-    boolean privateMessages() default false;
+    boolean takePrivateMessages() default false;
 
     boolean deletePrompt() default false;
 }

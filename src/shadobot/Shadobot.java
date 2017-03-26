@@ -11,45 +11,11 @@ import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.EventDispatcher;
 import sx.blah.discord.util.DiscordException;
 
-;
 
-
-<<<<<<< HEAD
-public class Shadobot
-{
-
-    private static final String TOKEN = "Mjk0OTkwNTk5NDExNTk3MzEy.C7dMYg.Wt8Skpog6u9gKKpkPIznK05QzuI";
-
-    private static final String prefix = "!";
-    private static List<Command> unprefixedCommands = new ArrayList<Command>();
-
-    private static List<Command> prefixedCommands = new ArrayList<Command>(Arrays.asList(
-            new CustomPingCreator().init(unprefixedCommands),
-            new Ping().init()
-    ));
-    
-    private static DiscordAPI api;
-
-    public static void main(String[] args)
-    {
-        api = Javacord.getApi(TOKEN,true);
-        final MainWindow shadobotWindow = new MainWindow();
-
-        // connect
-        api.connect(new FutureCallback<DiscordAPI>()
-        {
-            public void onSuccess(DiscordAPI api)
-            {
-                // register listener
-                api.registerListener(new CommandListener(prefix,prefixedCommands,unprefixedCommands));
-                System.out.println();
-                shadobotWindow.logAdd(">>> SHADOBOT ONLINE <<<");
-                api.setGame("Neptunic is God");
-            }
-=======
 public class Shadobot {
     private static final String TOKEN = "MjM5NjEyODM0OTIzNjc1NjUw.C6dhzQ.fn9jOrqeN2fNRhcz4yESeBFvjiY";
     private static final String PREFIX = "!";
+    private static final String VERSION = "ABCDEFG";
 
     public static void main(String[] args)
     {
@@ -57,7 +23,6 @@ public class Shadobot {
 
         IDiscordClient client = createClient(TOKEN,true);
         EventDispatcher dispatcher = client.getDispatcher();
->>>>>>> 92590ed44f4f22757b218d4649c5588e6c1d1163
 
         CommandListener commandListener = new CommandListener(PREFIX);
         dispatcher.registerListener(commandListener);
@@ -67,7 +32,7 @@ public class Shadobot {
         commandListener.register(new CustomPingCreator(commandListener));
 
         System.out.println();
-        userInterface.logAdd("!!!!!!!!!!!!! SHADOBOT ONLINE !!!!!!!!!!!!!");
+        userInterface.logAdd("!!!!!!!!!!!!! SHADOBOT VERSION "+VERSION+" ONLINE !!!!!!!!!!!!!");
     }
 
     public static IDiscordClient createClient(String token, boolean login) { // Returns a new instance of the Discord client
@@ -83,11 +48,6 @@ public class Shadobot {
             e.printStackTrace();
             return null;
         }
-    }
-    
-    public static DiscordAPI getAPI()
-    {
-    	return api;
     }
 }
 
