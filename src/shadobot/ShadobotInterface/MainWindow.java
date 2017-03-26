@@ -7,10 +7,6 @@ import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.JButton;
-import javax.swing.JScrollPane;
-
-//TO-DO: SCROLLABLE TEXT PANE
 
 public final class MainWindow
 {
@@ -29,13 +25,13 @@ public final class MainWindow
 
 	private StyledDocument doc;
 	private SimpleAttributeSet docStyle;
-	private JScrollPane logScroll;
 	
 	public MainWindow()
 	{
 		window = new JFrame("Shadobot");
 		window.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 		window.setLayout(null);
+		window.setLocation(300,100);
 		
 		// left side
 		serverSide = new JPanel();

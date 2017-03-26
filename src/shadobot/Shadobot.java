@@ -11,12 +11,11 @@ import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.EventDispatcher;
 import sx.blah.discord.util.DiscordException;
 
-;
-
 
 public class Shadobot {
     private static final String TOKEN = "MjM5NjEyODM0OTIzNjc1NjUw.C6dhzQ.fn9jOrqeN2fNRhcz4yESeBFvjiY";
     private static final String PREFIX = "!";
+    private static final String VERSION = "ABCDEFG";
 
     public static void main(String[] args)
     {
@@ -33,7 +32,7 @@ public class Shadobot {
         commandListener.register(new CustomPingCreator(commandListener));
 
         System.out.println();
-        userInterface.logAdd("!!!!!!!!!!!!! SHADOBOT ONLINE !!!!!!!!!!!!!");
+        userInterface.logAdd("!!!!!!!!!!!!! SHADOBOT VERSION "+VERSION+" ONLINE !!!!!!!!!!!!!");
     }
 
     public static IDiscordClient createClient(String token, boolean login) { // Returns a new instance of the Discord client

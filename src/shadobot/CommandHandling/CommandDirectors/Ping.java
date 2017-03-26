@@ -1,7 +1,6 @@
 package shadobot.CommandHandling.CommandDirectors;
 
 import shadobot.CommandHandling.CommandAssemblyComponents.Command;
-import shadobot.CommandHandling.CommandAssemblyComponents.CommandBuilder;
 import shadobot.CommandHandling.CommandAssemblyComponents.CommandData;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.DiscordException;
@@ -12,29 +11,11 @@ import sx.blah.discord.util.RateLimitException;
         aliases = {"ping"},
         description = "it ping"
 )
-public class Ping extends CommandBuilder{
+public class Ping extends Command{
 
     @Override
-    public Command buildCommand(){
-
-        return (new Command() {
-            @Override
-            public void execute(IMessage message, String args) {
-                try {
-                    message.reply("pong");
-
-                } catch (RateLimitException e) {
-                    System.err.print("Sending messages too quickly!");
-                    e.printStackTrace();
-                } catch (DiscordException e) {
-                    System.err.print(e.getErrorMessage());
-                    e.printStackTrace();
-                } catch (MissingPermissionsException e) {
-                    System.err.print("Missing permissions for channel!");
-                    e.printStackTrace();
-                }
-
-            }
-        });
+    public void execute(IMessage message, String args) throws RateLimitException,DiscordException,
+            MissingPermissionsException {
+        message.reply("pong");
     }
 }
