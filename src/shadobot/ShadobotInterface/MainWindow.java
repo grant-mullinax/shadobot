@@ -1,5 +1,6 @@
-package ShadobotWindow;
+package shadobot.ShadobotInterface;
 
+<<<<<<< HEAD:src/ShadobotWindow/MainWindow.java
 import shadobot.Shadobot;
 
 import java.awt.BorderLayout;
@@ -21,12 +22,21 @@ import de.btobastian.javacord.entities.VoiceChannel;
 import de.btobastian.javacord.entities.permissions.Permissions;
 import de.btobastian.javacord.entities.permissions.Role;
 
+=======
+import javax.swing.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyledDocument;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+>>>>>>> 92590ed44f4f22757b218d4649c5588e6c1d1163:src/shadobot/ShadobotInterface/MainWindow.java
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
 
 //TO-DO: SCROLLABLE TEXT PANE
 
-public class MainWindow
+public final class MainWindow
 {
 	private JFrame window;
 
@@ -34,10 +44,13 @@ public class MainWindow
 	private JPanel serverSide;
 	private JButton muteButton;
 	private JButton refreshButton;
+
 	// right side of layout
 	private JPanel logSide;
 	private JButton clearLogButton;
 	private JTextPane log;
+	private JScrollPane scrollableLog;
+
 	private StyledDocument doc;
 	private SimpleAttributeSet docStyle;
 	private JScrollPane logScroll;
@@ -75,16 +88,16 @@ public class MainWindow
 		
 		// right side
 		logSide = new JPanel();
-		logSide.setBounds(255, 10, 230, 280);
+		logSide.setBounds(255, 10, 600, 425);
 		
 		log = new JTextPane();
 		log.setEditable(false);
 		doc = log.getStyledDocument();
 		docStyle = new SimpleAttributeSet();
-		log.setPreferredSize(new Dimension(215, 180));
-		logScroll = new JScrollPane(log);
-		
-		logSide.add(logScroll, BorderLayout.NORTH);
+		log.setPreferredSize(new Dimension(550, 350));
+
+		scrollableLog = new JScrollPane(log);
+		logSide.add(scrollableLog, BorderLayout.NORTH);
 		
 		clearLogButton = new JButton("Clear Log");
 		clearLogButton.setPreferredSize(new Dimension(180, 50));
@@ -99,7 +112,7 @@ public class MainWindow
 		// total window
 		window.add(logSide, BorderLayout.EAST);
 		window.add(serverSide, BorderLayout.WEST);
-		window.setPreferredSize(new Dimension(500, 300));
+		window.setPreferredSize(new Dimension(900, 490));
 		
 		window.pack();
 		
@@ -113,13 +126,16 @@ public class MainWindow
 		try
 		{
 			doc.insertString(doc.getLength(), s + "\n", docStyle);
+
+			final JScrollBar verticalScrollBar = scrollableLog.getVerticalScrollBar();
+			verticalScrollBar.setValue(verticalScrollBar.getMaximum()+16);
 		} 
 		catch (BadLocationException e)
 		{
 			System.out.println(e);
 		}
 	}
-	
+
 	public void logClear()
 	{
 		log.setText("");

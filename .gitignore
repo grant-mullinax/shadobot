@@ -7,7 +7,6 @@
 /.gitattributes
 /_config.yml
 
-<<<<<<< HEAD
 /pom.xml
 
 **/.idea
@@ -16,7 +15,6 @@
 .idea/workspace.xml
 
 =======
->>>>>>> parent of 133abdf... initial commit
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
