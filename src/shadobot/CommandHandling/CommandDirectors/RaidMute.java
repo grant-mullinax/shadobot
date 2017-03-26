@@ -14,7 +14,8 @@ import sx.blah.discord.util.RateLimitException;
 
 @CommandData(
         aliases = {"e","encounter"},
-        description = "toggles a raid encounter, muting scrubs when enabled"
+        description = "toggles a raid encounter, muting scrubs when enabled",
+        requiredRole = "295104552594833409"
 )
 public class RaidMute extends Command{
     private boolean toggle = false;
@@ -36,12 +37,5 @@ public class RaidMute extends Command{
                 toggle = !toggle;
             }
         }
-    }
-
-    @Override
-    public boolean check(IMessage message){
-        IGuild guild = message.getChannel().getGuild();
-
-        return message.getAuthor().getRolesForGuild(guild).contains(guild.getRoleByID("295104552594833409"));
     }
 }

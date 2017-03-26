@@ -5,6 +5,7 @@ import shadobot.CommandHandling.CommandAssemblyComponents.CommandData;
 import shadobot.ShadobotInterface.UserInterface;
 import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
+import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
@@ -31,8 +32,22 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
         if (command!=null) if (command.check(message)) {
             UserInterface.logAdd("executed command "+command.getClass().getSimpleName());
 
+            IGuild guild = message.getChannel().getGuild();
+            CommandData annotation = command.getClass().getAnnotation(CommandData.class);
+
+            //handle all possible trigger-dependent annotations
+            if (annotation.takeChannelMessages() && event.getMessage().getChannel().isPrivate()) return;
+            if (annotation.takePrivateMessages() && !event.getMessage().getChannel().isPrivate()) return;
+
+            if (annotation.requiredRole()!="")
+                if (!message.getAuthor().getRolesForGuild(guild).contains(guild.getRoleByID(annotation.requiredRole())))
+                    return;
+
             try{
                 command.execute(message, (splitMessage.length > 1) ? splitMessage[1] : "");
+                if (annotation.deletePrompt()) message.delete();
+
+
             } catch (RateLimitException e) {
                 System.err.print("Sending messages too quickly!");
                 e.printStackTrace();
