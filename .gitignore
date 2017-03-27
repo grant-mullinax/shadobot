@@ -7,8 +7,6 @@
 /.gitattributes
 /_config.yml
 
-/pom.xml
-
 **/.idea
 **/out
 **/target

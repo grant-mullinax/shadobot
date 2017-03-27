@@ -32,6 +32,7 @@ public class Shadobot {
         commandListener.register(new CustomPingCreator(commandListener));
 
         System.out.println();
+        userInterface.logAdd("");
         userInterface.logAdd("!!!!!!!!!!!!! SHADOBOT VERSION "+VERSION+" ONLINE !!!!!!!!!!!!!");
     }
 

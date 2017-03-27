@@ -2,6 +2,7 @@ package shadobot.CommandHandling;
 
 import shadobot.CommandHandling.CommandAssemblyComponents.Command;
 import shadobot.CommandHandling.CommandAssemblyComponents.CommandData;
+import shadobot.CommandHandling.CommandAssemblyComponents.CommandNetwork;
 import shadobot.ShadobotInterface.UserInterface;
 import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
@@ -11,11 +12,13 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class CommandListener implements IListener<MessageReceivedEvent> {
     private String prefix;
     private HashMap<String,Command> registeredCommands = new HashMap<String, Command>();
+    private ArrayList<Command> registeredFreeCommands = new ArrayList<Command>();
 
     public CommandListener(String prefix) {
         this.prefix = prefix;
@@ -24,10 +27,10 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
     public void handle(MessageReceivedEvent event) {
         final IMessage message = event.getMessage();
 
-        //if (message.getAuthor().isBot()) return;
+        if (message.getAuthor().isBot()) return;
 
         final String[] splitMessage = message.getContent().split(" ");
-        final Command command = registeredCommands.get(splitMessage[0]);
+        final Command command = registeredCommands.get(splitMessage[0].toLowerCase());
 
         if (command!=null) if (command.check(message)) {
             UserInterface.logAdd("executed command "+command.getClass().getSimpleName());
@@ -59,6 +62,27 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                 e.printStackTrace();
             }
         }
+
+        for (Command freeCommand: registeredFreeCommands){
+            CommandData annotation = freeCommand.getClass().getAnnotation(CommandData.class);
+            if (annotation.takeChannelMessages() && event.getMessage().getChannel().isPrivate()) return;
+
+            if (freeCommand.check(message)) {
+                try {
+                    freeCommand.execute(message, (splitMessage.length > 1) ? splitMessage[1] : "");
+                    if (annotation.deletePrompt()) message.delete();
+                } catch (RateLimitException e) {
+                    System.err.print("Sending messages too quickly!");
+                    e.printStackTrace();
+                } catch (DiscordException e) {
+                    System.err.print(e.getErrorMessage());
+                    e.printStackTrace();
+                } catch (MissingPermissionsException e) {
+                    System.err.print("Missing permissions for channel!");
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public void register(Command command){
@@ -78,7 +102,22 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
         }
     }
 
+    public void register(CommandNetwork commandNetwork){
+        for (Class commandClass:commandNetwork.getClass().getClasses()){
+            try{
+                register((Command)commandClass.newInstance());
+            } catch(InstantiationException e) {
+                System.out.println(e.toString());
+            } catch(IllegalAccessException e) {
+                System.out.println(e.toString());
+            }
+        }
+    }
+
     public void directlyRegister(String alias, Command command){
         registeredCommands.put(alias,command);
+    }
+    public void directlyRegisterFreeCommand(Command command){
+        registeredFreeCommands.add(command);
     }
 }
