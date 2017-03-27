@@ -33,6 +33,7 @@ public final class MainWindow
 	// left side of pane
 	private JPanel serverSide;
 	private JButton muteButton;
+	private JComboBox roleSelectBox;
 	private JButton refreshButton;
 
 	// right side of layout
@@ -77,7 +78,7 @@ public final class MainWindow
 		serverSide.setBounds(10, 10, 235, 280);
 		
 		muteButton = new JButton("Mute");
-		muteButton.setPreferredSize(new Dimension(100, 50));
+		muteButton.setPreferredSize(new Dimension(80, 40));
 		muteButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e)
 			{
@@ -85,6 +86,10 @@ public final class MainWindow
 			}
 		});
 		serverSide.add(muteButton, BorderLayout.SOUTH);
+
+		roleSelectBox = new JComboBox();
+		roleSelectBox.setPreferredSize(new Dimension(80, 40));
+		serverSide.add(roleSelectBox, BorderLayout.SOUTH);
 		
 		//to-do: functionality
 		refreshButton = new JButton("Refresh");
@@ -163,10 +168,16 @@ public final class MainWindow
 
 	public void setSelectedGuild(IGuild guild){
 		selectedGuild = guild;
+		String[] roleNames = new String[guild.getRoles().size()];
+		for (int i = 0; i < guild.getRoles().size(); i++) {
+			roleNames[i] = guild.getRoles().get(i).getName();
+		}
+		DefaultComboBoxModel model = new DefaultComboBoxModel(roleNames);
+		roleSelectBox.setModel(model);
 	}
 
 	public void setSelectedGuild(String name){
-		selectedGuild = guildRegister.get(name);
+		setSelectedGuild(guildRegister.get(name));
 	}
 	
 }
