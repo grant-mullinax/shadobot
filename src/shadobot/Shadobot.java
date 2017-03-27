@@ -4,36 +4,59 @@ import shadobot.CommandHandling.CommandDirectors.CustomPingCreator;
 import shadobot.CommandHandling.CommandDirectors.Ping;
 import shadobot.CommandHandling.CommandDirectors.RaidMute;
 import shadobot.CommandHandling.CommandListener;
-import shadobot.ShadobotInterface.MainWindow;
-import shadobot.ShadobotInterface.UserInterface;
+import shadobot.MiscListeners.GuildJoinListener;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.EventDispatcher;
 import sx.blah.discord.util.DiscordException;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
 
 public class Shadobot {
-    private static final String TOKEN = "MjM5NjEyODM0OTIzNjc1NjUw.C6dhzQ.fn9jOrqeN2fNRhcz4yESeBFvjiY";
     private static final String PREFIX = "!";
     private static final String VERSION = "ABCDEFG";
 
+    public static MainWindow UI;
+
     public static void main(String[] args)
     {
-        UserInterface userInterface = new UserInterface(new MainWindow());
+        File tokenFile = new File("token.txt");
+        String token;
+        try
+        {
+            Scanner fReader = new Scanner(tokenFile);
+            String in = fReader.nextLine();
+            in = in.replace("token =", "");
+            in = in.trim();
+            token = in;
+        }
+        catch (FileNotFoundException e)
+        {
+            System.out.println("\"Token\" file missing. Please re-clone the repository.");
+            return;
+        }
 
-        IDiscordClient client = createClient(TOKEN,true);
+        IDiscordClient client = createClient(token,true);
         EventDispatcher dispatcher = client.getDispatcher();
+
+
+        UI = new MainWindow();
+        UI.init(client);
 
         CommandListener commandListener = new CommandListener(PREFIX);
         dispatcher.registerListener(commandListener);
+        dispatcher.registerListener(new GuildJoinListener());
 
         commandListener.register(new Ping());
         commandListener.register(new RaidMute());
         commandListener.register(new CustomPingCreator(commandListener));
 
         System.out.println();
-        userInterface.logAdd("");
-        userInterface.logAdd("!!!!!!!!!!!!! SHADOBOT VERSION "+VERSION+" ONLINE !!!!!!!!!!!!!");
+        UI.logAdd("");
+        UI.logAdd("!!!!!!!!!!!!! SHADOBOT VERSION "+VERSION+" ONLINE !!!!!!!!!!!!!");
     }
 
     public static IDiscordClient createClient(String token, boolean login) { // Returns a new instance of the Discord client

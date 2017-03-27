@@ -3,7 +3,7 @@ package shadobot.CommandHandling;
 import shadobot.CommandHandling.CommandAssemblyComponents.Command;
 import shadobot.CommandHandling.CommandAssemblyComponents.CommandData;
 import shadobot.CommandHandling.CommandAssemblyComponents.CommandNetwork;
-import shadobot.ShadobotInterface.UserInterface;
+import shadobot.Shadobot;
 import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IGuild;
@@ -33,7 +33,7 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
         final Command command = registeredCommands.get(splitMessage[0].toLowerCase());
 
         if (command!=null) if (command.check(message)) {
-            UserInterface.logAdd("executed command "+command.getClass().getSimpleName());
+            Shadobot.UI.logAdd("executed command "+command.getClass().getSimpleName());
 
             IGuild guild = message.getChannel().getGuild();
             CommandData annotation = command.getClass().getAnnotation(CommandData.class);
@@ -95,10 +95,10 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                         command
                 );
 
-                UserInterface.logAdd("registered "+command.getClass().getSimpleName()+" as \""+alias+"\"");
+                Shadobot.UI.logAdd("registered "+command.getClass().getSimpleName()+" as \""+alias+"\"");
             }
         }else{
-            UserInterface.logAdd(command.getClass().getName()+" has no annotation");
+            Shadobot.UI.logAdd(command.getClass().getName()+" has no annotation");
         }
     }
 

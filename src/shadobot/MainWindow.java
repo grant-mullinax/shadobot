@@ -1,4 +1,8 @@
-package shadobot.ShadobotInterface;
+package shadobot;
+
+import shadobot.MiscListeners.UIListeners.GuildSelectionListener;
+import sx.blah.discord.api.IDiscordClient;
+import sx.blah.discord.handle.obj.IGuild;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
@@ -7,10 +11,24 @@ import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.util.HashMap;
 
 public final class MainWindow
 {
+	public static IGuild selectedGuild;
+
+	private HashMap<String,IGuild> guildRegister = new HashMap<String, IGuild>();
+
 	private JFrame window;
+
+	private JMenuBar menuBar;
+
+	private JMenu serverMenu;
+	private ButtonGroup serverGroup;
+
+	private GuildSelectionListener guildSelectionListener = new GuildSelectionListener(); //todo maybe handle it like
+	// the mute button
 
 	// left side of pane
 	private JPanel serverSide;
@@ -26,12 +44,33 @@ public final class MainWindow
 	private StyledDocument doc;
 	private SimpleAttributeSet docStyle;
 	
-	public MainWindow()
+	public void init(IDiscordClient client)
 	{
 		window = new JFrame("Shadobot");
 		window.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 		window.setLayout(null);
 		window.setLocation(300,100);
+
+		//Create the menu bar.
+		menuBar = new JMenuBar();
+
+		serverMenu = new JMenu("Server");
+		serverMenu.setMnemonic(KeyEvent.VK_A);
+		serverMenu.getAccessibleContext().setAccessibleDescription(
+				"The only menu in this program that has menu items");
+		menuBar.add(serverMenu);
+
+		serverGroup = new ButtonGroup();
+
+		/*for (IGuild guild: client.getGuilds()) {
+			JRadioButtonMenuItem serverMenuItem = new JRadioButtonMenuItem(guild.getName());
+			serverMenuItem.setSelected(true);
+			serverMenuItem.setMnemonic(KeyEvent.VK_R);
+			serverGroup.add(serverMenuItem);
+			serverMenu.add(serverMenuItem);
+		}*/
+
+		window.setJMenuBar(menuBar);
 		
 		// left side
 		serverSide = new JPanel();
@@ -111,6 +150,23 @@ public final class MainWindow
 	{
 		muteButton.setText(muteButton.getText() == "Mute" ? "Unmute" : "Mute");
 	}
-	
+
+	public void addServer(IGuild guild){
+		JRadioButtonMenuItem serverMenuItem = new JRadioButtonMenuItem(guild.getName());
+		if (guild.getName().equals("OFF MY STOOP")) serverMenuItem.setSelected(true);
+		serverGroup.add(serverMenuItem);
+		serverMenu.add(serverMenuItem);
+		serverMenuItem.addActionListener(guildSelectionListener);
+
+		guildRegister.put(guild.getName(),guild);
+	}
+
+	public void setSelectedGuild(IGuild guild){
+		selectedGuild = guild;
+	}
+
+	public void setSelectedGuild(String name){
+		selectedGuild = guildRegister.get(name);
+	}
 	
 }
