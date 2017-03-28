@@ -175,8 +175,6 @@ public final class MainWindow
 	public void mutePressed(Boolean toggle)
 	{
 
-		muteButton.setText(muteButton.getText() == "Mute" ? "Unmute" : "Mute");
-
 		for (IUser user: voiceChannelRegister.get((String) voiceChannelSelectBox.getSelectedItem()).getConnectedUsers
 				()){
 			if (!user.getRolesForGuild(selectedGuild).contains(roleRegister.get(roleSelectBox.getSelectedItem()))){
