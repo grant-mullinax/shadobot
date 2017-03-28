@@ -42,7 +42,7 @@ public final class MainWindow
 	// left side of pane
 	private JPanel serverSide;
 	private JButton muteButton;
-	private boolean muteToggle = false;
+	private JButton unMuteButton;
 	private JComboBox roleSelectBox;
 	private JComboBox voiceChannelSelectBox;
 	private JButton refreshButton;
@@ -81,16 +81,27 @@ public final class MainWindow
 		serverSide.setLayout(null);
 		serverSide.setBounds(10, 10, 255, 415);
 		serverSide.setBorder(BorderFactory.createEtchedBorder());
-		
+
+		//todo position these more intuitively
 		muteButton = new JButton("Mute");
 		muteButton.setBounds(10,20,80,30);
 		muteButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e)
 			{
-				mutePressed();
+				mutePressed(true);
 			}
 		});
 		serverSide.add(muteButton);
+
+		unMuteButton = new JButton("Unmute");
+		unMuteButton.setBounds(10,60,80,30);
+		unMuteButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e)
+			{
+				mutePressed(false);
+			}
+		});
+		serverSide.add(unMuteButton);
 
 		roleSelectBox = new JComboBox();
 		roleSelectBox.setBounds(100,20,140,30);
@@ -161,7 +172,7 @@ public final class MainWindow
 		log.setText("");
 	}
 	
-	public void mutePressed()
+	public void mutePressed(Boolean toggle)
 	{
 
 		muteButton.setText(muteButton.getText() == "Mute" ? "Unmute" : "Mute");
@@ -171,7 +182,7 @@ public final class MainWindow
 			if (!user.getRolesForGuild(selectedGuild).contains(roleRegister.get(roleSelectBox.getSelectedItem()))){
 				Shadobot.UI.logAdd(user.getName());
 				try {
-					selectedGuild.setMuteUser(user, !muteToggle);
+					selectedGuild.setMuteUser(user, toggle);
 				} catch (RateLimitException e) {
 					System.err.print("Sending messages too quickly!");
 					e.printStackTrace();
@@ -179,7 +190,6 @@ public final class MainWindow
 					System.err.print(e.getErrorMessage());
 					e.printStackTrace();
 				} catch (MissingPermissionsException e) {}
-				muteToggle = !muteToggle;
 			}
 			try {
 				TimeUnit.SECONDS.sleep(1);
