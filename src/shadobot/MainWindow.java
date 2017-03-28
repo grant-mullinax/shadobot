@@ -3,6 +3,12 @@ package shadobot;
 import shadobot.MiscListeners.UIListeners.GuildSelectionListener;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IGuild;
+import sx.blah.discord.handle.obj.IRole;
+import sx.blah.discord.handle.obj.IUser;
+import sx.blah.discord.handle.obj.IVoiceChannel;
+import sx.blah.discord.util.DiscordException;
+import sx.blah.discord.util.MissingPermissionsException;
+import sx.blah.discord.util.RateLimitException;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
@@ -13,12 +19,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 public final class MainWindow
 {
 	public static IGuild selectedGuild;
 
 	private HashMap<String,IGuild> guildRegister = new HashMap<String, IGuild>();
+	private HashMap<String,IRole> roleRegister = new HashMap<String, IRole>();
+	private HashMap<String,IVoiceChannel> voiceChannelRegister = new HashMap<String, IVoiceChannel>();
 
 	private JFrame window;
 
@@ -33,7 +42,9 @@ public final class MainWindow
 	// left side of pane
 	private JPanel serverSide;
 	private JButton muteButton;
+	private boolean muteToggle = false;
 	private JComboBox roleSelectBox;
+	private JComboBox voiceChannelSelectBox;
 	private JButton refreshButton;
 
 	// right side of layout
@@ -63,42 +74,41 @@ public final class MainWindow
 
 		serverGroup = new ButtonGroup();
 
-		/*for (IGuild guild: client.getGuilds()) {
-			JRadioButtonMenuItem serverMenuItem = new JRadioButtonMenuItem(guild.getName());
-			serverMenuItem.setSelected(true);
-			serverMenuItem.setMnemonic(KeyEvent.VK_R);
-			serverGroup.add(serverMenuItem);
-			serverMenu.add(serverMenuItem);
-		}*/
-
 		window.setJMenuBar(menuBar);
 		
 		// left side
 		serverSide = new JPanel();
-		serverSide.setBounds(10, 10, 235, 280);
+		serverSide.setLayout(null);
+		serverSide.setBounds(10, 10, 255, 415);
+		serverSide.setBorder(BorderFactory.createEtchedBorder());
 		
 		muteButton = new JButton("Mute");
-		muteButton.setPreferredSize(new Dimension(80, 40));
+		muteButton.setBounds(10,20,80,30);
 		muteButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e)
 			{
 				mutePressed();
 			}
 		});
-		serverSide.add(muteButton, BorderLayout.SOUTH);
+		serverSide.add(muteButton);
 
 		roleSelectBox = new JComboBox();
-		roleSelectBox.setPreferredSize(new Dimension(80, 40));
-		serverSide.add(roleSelectBox, BorderLayout.SOUTH);
+		roleSelectBox.setBounds(100,20,140,30);
+		serverSide.add(roleSelectBox);
+
+		voiceChannelSelectBox = new JComboBox();
+		voiceChannelSelectBox.setBounds(100,60,140,30);
+		serverSide.add(voiceChannelSelectBox);
 		
 		//to-do: functionality
 		refreshButton = new JButton("Refresh");
-		refreshButton.setPreferredSize(new Dimension(80, 50));
-		serverSide.add(refreshButton,  BorderLayout.SOUTH);
+		refreshButton.setBounds(10,370,80,30);
+		serverSide.add(refreshButton);
 		
-		// right side
+		// right side todo convert to setbounds positioning for right side
 		logSide = new JPanel();
-		logSide.setBounds(255, 10, 600, 425);
+		logSide.setBounds(280, 10, 600, 415);
+		//logSide.setBorder(BorderFactory.createEtchedBorder());
 		
 		log = new JTextPane();
 		log.setEditable(false);
@@ -153,12 +163,38 @@ public final class MainWindow
 	
 	public void mutePressed()
 	{
+
 		muteButton.setText(muteButton.getText() == "Mute" ? "Unmute" : "Mute");
+
+		for (IUser user: voiceChannelRegister.get((String) voiceChannelSelectBox.getSelectedItem()).getConnectedUsers
+				()){
+			if (!user.getRolesForGuild(selectedGuild).contains(roleRegister.get(roleSelectBox.getSelectedItem()))){
+				Shadobot.UI.logAdd(user.getName());
+				try {
+					selectedGuild.setMuteUser(user, !muteToggle);
+				} catch (RateLimitException e) {
+					System.err.print("Sending messages too quickly!");
+					e.printStackTrace();
+				} catch (DiscordException e) {
+					System.err.print(e.getErrorMessage());
+					e.printStackTrace();
+				} catch (MissingPermissionsException e) {}
+				muteToggle = !muteToggle;
+			}
+			try {
+				TimeUnit.SECONDS.sleep(1);
+			}catch (InterruptedException e){
+
+			}
+		}
 	}
 
 	public void addServer(IGuild guild){
 		JRadioButtonMenuItem serverMenuItem = new JRadioButtonMenuItem(guild.getName());
-		if (guild.getName().equals("OFF MY STOOP")) serverMenuItem.setSelected(true);
+		if (guild.getName().equals("OFF MY STOOP")) {
+			serverMenuItem.setSelected(true);
+			setSelectedGuild(guild);
+		}
 		serverGroup.add(serverMenuItem);
 		serverMenu.add(serverMenuItem);
 		serverMenuItem.addActionListener(guildSelectionListener);
@@ -166,14 +202,29 @@ public final class MainWindow
 		guildRegister.put(guild.getName(),guild);
 	}
 
-	public void setSelectedGuild(IGuild guild){
+	public void setSelectedGuild(IGuild guild){ //todo handle these with their own combobox extention
 		selectedGuild = guild;
+
+		roleRegister = new HashMap<String, IRole>();
 		String[] roleNames = new String[guild.getRoles().size()];
 		for (int i = 0; i < guild.getRoles().size(); i++) {
-			roleNames[i] = guild.getRoles().get(i).getName();
+			IRole role = guild.getRoles().get(i);
+			roleNames[i] = role.getName();
+			roleRegister.put(role.getName(),role);
 		}
-		DefaultComboBoxModel model = new DefaultComboBoxModel(roleNames);
-		roleSelectBox.setModel(model);
+		DefaultComboBoxModel roleBoxModel = new DefaultComboBoxModel(roleNames);
+		roleSelectBox.setModel(roleBoxModel);
+
+		voiceChannelRegister = new HashMap<String, IVoiceChannel>();
+		String[] channelNames = new String[guild.getVoiceChannels().size()];
+		for (int i = 0; i < guild.getVoiceChannels().size(); i++) {
+			IVoiceChannel voiceChannel = guild.getVoiceChannels().get(i);
+			channelNames[i] = voiceChannel.getName();
+			voiceChannelRegister.put(voiceChannel.getName(),voiceChannel);
+			if (voiceChannel.getName().equals("speaker")) voiceChannelSelectBox.setSelectedIndex(i);
+		}
+		DefaultComboBoxModel voiceChannelBoxModel = new DefaultComboBoxModel(channelNames);
+		voiceChannelSelectBox.setModel(voiceChannelBoxModel);
 	}
 
 	public void setSelectedGuild(String name){

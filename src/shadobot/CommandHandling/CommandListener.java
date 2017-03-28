@@ -42,9 +42,9 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
             if (annotation.takeChannelMessages() && event.getMessage().getChannel().isPrivate()) return;
             if (annotation.takePrivateMessages() && !event.getMessage().getChannel().isPrivate()) return;
 
-            if (annotation.requiredRole()!="")
+            /*if (annotation.requiredRole()!="")
                 if (!message.getAuthor().getRolesForGuild(guild).contains(guild.getRoleByID(annotation.requiredRole())))
-                    return;
+                    return;*/
 
             try{
                 command.execute(message, (splitMessage.length > 1) ? splitMessage[1] : "");
@@ -77,10 +77,7 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                 } catch (DiscordException e) {
                     System.err.print(e.getErrorMessage());
                     e.printStackTrace();
-                } catch (MissingPermissionsException e) {
-                    System.err.print("Missing permissions for channel!");
-                    e.printStackTrace();
-                }
+                } catch (MissingPermissionsException e) {}
             }
         }
     }
