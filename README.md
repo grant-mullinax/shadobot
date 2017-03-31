@@ -6,7 +6,8 @@ Please provide your bot token in a token.txt file with the format:
 Commands are implimented by creating a class that extends Command with annotaton @CommandData where all relevant info can be inserted. Then the command class should be instantiated and registered to the CommandHandler using the .register() method in main.
 
 ### Simple Example:
-`@CommandData(
+```
+@CommandData(
         aliases = {"ping"},
         description = "it pings!",
         example = "!ping"
@@ -18,9 +19,12 @@ public class Ping extends Command{
             MissingPermissionsException {
         message.reply("pong");
     }
-}`
+}
+```
 Then, in main:
-`commandListener.register(new Ping());`
+```
+commandListener.register(new Ping());
+```
 
 Commands that are logistically linked can be placed as subclases into a class that extends CommandNetwork with the same syntax as up above. The CommandNetwork should be then be registered, but not the subclasses.
 
