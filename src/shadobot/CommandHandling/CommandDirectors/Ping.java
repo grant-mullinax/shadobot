@@ -9,11 +9,10 @@ import sx.blah.discord.util.RateLimitException;
 
 @CommandData(
         aliases = {"ping"},
-        description = "it ping"
+        description = "it pings!"
 )
 public class Ping extends Command{
 
-    @Override
     public void execute(IMessage message, String args) throws RateLimitException,DiscordException,
             MissingPermissionsException {
         message.reply("pong");

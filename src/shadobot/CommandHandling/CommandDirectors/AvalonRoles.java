@@ -26,7 +26,6 @@ public class AvalonRoles extends CommandNetwork {
             description = "creates a new avalon role handler"
     )
     public class newAvalon extends Command {
-        @Override
         public void execute(IMessage message, String args) throws RateLimitException,DiscordException,
                 MissingPermissionsException {
             responseChannel = message.getChannel();
@@ -40,7 +39,6 @@ public class AvalonRoles extends CommandNetwork {
             requiresPrefix = false
     )
     public class submitRole extends Command{
-        @Override
         public void execute(IMessage message, String args) throws RateLimitException,DiscordException,
                 MissingPermissionsException {
             playerRoles.put(message.getAuthor(),message.getContent().split(" ")[0]);
@@ -49,7 +47,6 @@ public class AvalonRoles extends CommandNetwork {
     }
 
     public class sendRoles extends Command{
-        @Override
         public void execute(IMessage message, String args) throws RateLimitException,DiscordException,
                 MissingPermissionsException {
             for (IUser user: playerRoles.keySet()){

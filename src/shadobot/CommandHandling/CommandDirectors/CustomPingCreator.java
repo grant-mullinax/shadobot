@@ -16,7 +16,6 @@ public class CustomPingCreator extends Command {
         this.commandListener = commandListener;
     }
 
-    @Override
     public void execute(IMessage message, String suffix) {
         String[] args = suffix.split(">");
         commandListener.directlyRegister(args[0],new CustomPing(args[1]));

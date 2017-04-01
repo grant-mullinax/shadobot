@@ -6,12 +6,15 @@ import shadobot.CommandHandling.CommandAssemblyComponents.CommandNetwork;
 import shadobot.Shadobot;
 import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
+import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -33,7 +36,6 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
         final Command command = registeredCommands.get(splitMessage[0].toLowerCase());
 
         if (command!=null) if (command.check(message)) {
-            Shadobot.UI.logAdd("executed command "+command.getClass().getSimpleName());
 
             IGuild guild = message.getChannel().getGuild();
             CommandData annotation = command.getClass().getAnnotation(CommandData.class);
@@ -46,10 +48,11 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                 if (!message.getAuthor().getRolesForGuild(guild).contains(guild.getRoleByID(annotation.requiredRole())))
                     return;*/
 
-            try{
-                command.execute(message, (splitMessage.length > 1) ? splitMessage[1] : "");
-                if (annotation.deletePrompt()) message.delete();
+            Shadobot.UI.logAdd("executed command "+command.getClass().getSimpleName());
 
+            try{
+                execute(command, message, splitMessage);
+                if (annotation.deletePrompt()) message.delete();
 
             } catch (RateLimitException e) {
                 System.err.print("Sending messages too quickly!");
@@ -63,7 +66,7 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
             }
         }
 
-        for (Command freeCommand: registeredFreeCommands){
+        /*for (Command freeCommand: registeredFreeCommands){
             CommandData annotation = freeCommand.getClass().getAnnotation(CommandData.class);
             if (annotation.takeChannelMessages() && event.getMessage().getChannel().isPrivate()) return;
 
@@ -78,6 +81,39 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                     System.err.print(e.getErrorMessage());
                     e.printStackTrace();
                 } catch (MissingPermissionsException e) {}
+            }
+        }*/
+    }
+
+    private void execute(Command command, IMessage message, String[] splitMessage){ //todo can potentially reduce
+        // runtimes by adding a execute method registry
+        for (Method method:command.getClass().getMethods()){
+            if (method.getName().equals("execute")){
+
+                Object[] params = new Object[method.getParameterTypes().length];
+                int userSuppliedParams = 0;
+                int i = 0;
+
+                for (Class param: method.getParameterTypes()){
+                    if (param.equals(IMessage.class)){
+                        params[i] = message;
+                    }else if(param.equals(String.class)){
+                        params[i] = splitMessage[userSuppliedParams+1];
+                        userSuppliedParams++;
+                    }else if(param.equals(IChannel.class)){
+                        params[i] = message.getChannel();
+                    }else if(param.equals(IGuild.class)){
+                        params[i] = message.getChannel().getGuild();
+                    }
+                    i++;
+                }
+                try {
+                    method.invoke(command, params);
+                } catch (IllegalAccessException e){
+                    e.printStackTrace();
+                } catch (InvocationTargetException e){
+                    e.printStackTrace();
+                }
             }
         }
     }

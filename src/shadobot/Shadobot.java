@@ -1,8 +1,6 @@
 package shadobot;
 
-import shadobot.CommandHandling.CommandDirectors.CustomPingCreator;
-import shadobot.CommandHandling.CommandDirectors.Ping;
-import shadobot.CommandHandling.CommandDirectors.RaidMute;
+import shadobot.CommandHandling.CommandDirectors.Ping2;
 import shadobot.CommandHandling.CommandListener;
 import shadobot.MiscListeners.GuildJoinListener;
 import sx.blah.discord.api.ClientBuilder;
@@ -50,9 +48,9 @@ public class Shadobot {
         dispatcher.registerListener(commandListener);
         dispatcher.registerListener(new GuildJoinListener());
 
-        commandListener.register(new Ping());
-        commandListener.register(new RaidMute());
-        commandListener.register(new CustomPingCreator(commandListener));
+        commandListener.register(new Ping2());
+        //commandListener.register(new RaidMute());
+        //commandListener.register(new CustomPingCreator(commandListener));
 
         System.out.println();
         UI.logAdd("");

@@ -1,20 +1,20 @@
 package shadobot.CommandHandling.CommandDirectors;
 
 import shadobot.CommandHandling.CommandAssemblyComponents.Command;
+import shadobot.CommandHandling.CommandAssemblyComponents.CommandData;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
 
-public class CustomPing extends Command{
-    private String reply;
+@CommandData(
+        aliases = {"ping"},
+        description = "it pings!"
+)
+public class Ping2 extends Command{
 
-    public CustomPing(String reply){
-        this.reply = reply;
-    }
-
-    public void execute(IMessage message, String suffix) throws RateLimitException,DiscordException,
+    public void execute(String arg, String arg2, IMessage message) throws RateLimitException,DiscordException,
             MissingPermissionsException {
-        message.reply(reply);
+        message.reply("pong "+arg+" 2 "+arg2);
     }
 }

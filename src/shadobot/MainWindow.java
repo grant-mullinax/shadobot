@@ -178,21 +178,28 @@ public final class MainWindow
 		for (IUser user: voiceChannelRegister.get((String) voiceChannelSelectBox.getSelectedItem()).getConnectedUsers
 				()){
 			if (!user.getRolesForGuild(selectedGuild).contains(roleRegister.get(roleSelectBox.getSelectedItem()))){
-				Shadobot.UI.logAdd(user.getName());
 				try {
 					selectedGuild.setMuteUser(user, toggle);
 				} catch (RateLimitException e) {
 					System.err.print("Sending messages too quickly!");
 					e.printStackTrace();
+					try {
+						TimeUnit.SECONDS.sleep((long)1);
+					}catch (InterruptedException e2){}
+
+					try {
+						selectedGuild.setMuteUser(user, toggle);
+					} catch (RateLimitException e2) {
+					} catch (DiscordException e2) {
+					} catch (MissingPermissionsException e2) {}
+
 				} catch (DiscordException e) {
 					System.err.print(e.getErrorMessage());
 					e.printStackTrace();
 				} catch (MissingPermissionsException e) {}
-			}
 			try {
-				TimeUnit.SECONDS.sleep(1);
-			}catch (InterruptedException e){
-
+				TimeUnit.SECONDS.sleep((long)0.2);
+			}catch (InterruptedException e){}
 			}
 		}
 	}
