@@ -3,16 +3,19 @@ package shadobot.CommandHandling;
 import shadobot.CommandHandling.CommandAssemblyComponents.Command;
 import shadobot.CommandHandling.CommandAssemblyComponents.CommandData;
 import shadobot.CommandHandling.CommandAssemblyComponents.CommandNetwork;
+import shadobot.CommandHandling.CommandAssemblyComponents.UserSupplied;
 import shadobot.Shadobot;
 import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
+import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -91,21 +94,36 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
             if (method.getName().equals("execute")){
 
                 Object[] params = new Object[method.getParameterTypes().length];
-                int userSuppliedParams = 0;
-                int i = 0;
 
-                for (Class param: method.getParameterTypes()){
-                    if (param.equals(IMessage.class)){
-                        params[i] = message;
-                    }else if(param.equals(String.class)){
-                        params[i] = splitMessage[userSuppliedParams+1];
+                int userSuppliedParams = 0;
+
+                Annotation[][] paramAnnotations = method.getParameterAnnotations();
+                Class[] parameterTypes = method.getParameterTypes();
+                /*todo add exceptions, ichannel, evaluate the validity of packaging usersupplied with user omitted
+                 params*/
+                for (int i = 0; i < parameterTypes.length; i++) {
+                    if (isUserSupplied(paramAnnotations[i]) && !splitMessage[userSuppliedParams+1].equals("_")) {
+                        if (parameterTypes[i].equals(String.class)) {
+                            params[i] = splitMessage[userSuppliedParams + 1];
+                        } else if (parameterTypes[i].equals(IVoiceChannel.class)) {
+                            for (IChannel channel:message.getGuild().getChannels()){
+                                if (channel.getName().equals(splitMessage[userSuppliedParams+1])) params[i] = message.getGuild();
+                            }
+                            Shadobot.UI.logAdd("idiot put wrong thing");
+                        } else if (parameterTypes[i].equals(IGuild.class)) {
+                            params[i] = message.getGuild();
+                        }
                         userSuppliedParams++;
-                    }else if(param.equals(IChannel.class)){
-                        params[i] = message.getChannel();
-                    }else if(param.equals(IGuild.class)){
-                        params[i] = message.getChannel().getGuild();
+                    }else{
+                        if (parameterTypes[i].equals(IMessage.class)) {
+                            params[i] = message;
+                        } else if (parameterTypes[i].equals(IVoiceChannel.class)) {
+                            params[i] = message.getAuthor().getConnectedVoiceChannels().get(0);
+                            Shadobot.UI.logAdd("idiot put wrong thing");
+                        } else if (parameterTypes[i].equals(IGuild.class)) {
+                            params[i] = message.getChannel().getGuild();
+                        }
                     }
-                    i++;
                 }
                 try {
                     method.invoke(command, params);
@@ -116,6 +134,13 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                 }
             }
         }
+    }
+
+    private boolean isUserSupplied(Annotation[] annotations){
+        for (Annotation annotation: annotations){
+            if (annotation.getClass().equals(UserSupplied.class)) return true;
+        }
+        return false;
     }
 
     public void register(Command command){
