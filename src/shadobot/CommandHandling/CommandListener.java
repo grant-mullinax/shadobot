@@ -18,6 +18,7 @@ import sx.blah.discord.util.RateLimitException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.channels.Channel;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -43,13 +44,15 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
             IGuild guild = message.getChannel().getGuild();
             CommandData annotation = command.getClass().getAnnotation(CommandData.class);
 
-            //handle all possible trigger-dependent annotations
-            if (annotation.takeChannelMessages() && event.getMessage().getChannel().isPrivate()) return;
-            if (annotation.takePrivateMessages() && !event.getMessage().getChannel().isPrivate()) return;
+            if (annotation!=null) {
+                //handle all possible trigger-dependent annotations
+                if (annotation.takeChannelMessages() && event.getMessage().getChannel().isPrivate()) return;
+                if (annotation.takePrivateMessages() && !event.getMessage().getChannel().isPrivate()) return;
 
             /*if (annotation.requiredRole()!="")
                 if (!message.getAuthor().getRolesForGuild(guild).contains(guild.getRoleByID(annotation.requiredRole())))
                     return;*/
+            }
 
             Shadobot.UI.logAdd("executed command "+command.getClass().getSimpleName());
 
@@ -95,36 +98,50 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
 
                 Object[] params = new Object[method.getParameterTypes().length];
 
-                int userSuppliedParams = 0;
-
                 Annotation[][] paramAnnotations = method.getParameterAnnotations();
                 Class[] parameterTypes = method.getParameterTypes();
                 /*todo add exceptions, ichannel, evaluate the validity of packaging usersupplied with user omitted
                  params*/
+
+                int userSuppliedParams = 0;
                 for (int i = 0; i < parameterTypes.length; i++) {
                     if (isUserSupplied(paramAnnotations[i]) && !splitMessage[userSuppliedParams+1].equals("_")) {
+                        /*USER SUPPLIED*/
                         if (parameterTypes[i].equals(String.class)) {
                             params[i] = splitMessage[userSuppliedParams + 1];
                         } else if (parameterTypes[i].equals(IVoiceChannel.class)) {
-                            for (IChannel channel:message.getGuild().getChannels()){
-                                if (channel.getName().equals(splitMessage[userSuppliedParams+1])) params[i] = message.getGuild();
+                            for (IChannel channel:message.getGuild().getVoiceChannels()){
+                                if (channel.getName().toLowerCase().equals(splitMessage[userSuppliedParams+1].toLowerCase())){
+                                    params[i] = channel;
+                                    return;
+                                }
                             }
-                            Shadobot.UI.logAdd("idiot put wrong thing");
-                        } else if (parameterTypes[i].equals(IGuild.class)) {
-                            params[i] = message.getGuild();
+                        } else if (parameterTypes[i].equals(Channel.class)) {
+                            for (IChannel channel:message.getGuild().getChannels()){
+                                if (channel.getName().toLowerCase().equals(splitMessage[userSuppliedParams+1].toLowerCase())){
+                                    params[i] = channel;
+                                    return;
+                                }
+                            }
                         }
                         userSuppliedParams++;
                     }else{
+                        /*USER OMITTED*/
                         if (parameterTypes[i].equals(IMessage.class)) {
                             params[i] = message;
                         } else if (parameterTypes[i].equals(IVoiceChannel.class)) {
                             params[i] = message.getAuthor().getConnectedVoiceChannels().get(0);
-                            Shadobot.UI.logAdd("idiot put wrong thing");
+                        } else if (parameterTypes[i].equals(String[].class)) {
+                            params[i] = splitMessage;
                         } else if (parameterTypes[i].equals(IGuild.class)) {
                             params[i] = message.getChannel().getGuild();
                         }
                     }
                 }
+                for (Object param:params) Shadobot.UI.logAdd(
+                        param
+                        .getClass()
+                        .getSimpleName());
                 try {
                     method.invoke(command, params);
                 } catch (IllegalAccessException e){
@@ -138,7 +155,9 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
 
     private boolean isUserSupplied(Annotation[] annotations){
         for (Annotation annotation: annotations){
-            if (annotation.getClass().equals(UserSupplied.class)) return true;
+            if (annotation.annotationType().equals(UserSupplied.class)) {
+                return true;
+            }
         }
         return false;
     }

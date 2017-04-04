@@ -2,8 +2,8 @@ package shadobot.CommandHandling.CommandDirectors;
 
 import shadobot.CommandHandling.CommandAssemblyComponents.Command;
 import shadobot.CommandHandling.CommandAssemblyComponents.CommandData;
+import shadobot.CommandHandling.CommandAssemblyComponents.UserSupplied;
 import shadobot.CommandHandling.CommandListener;
-import sx.blah.discord.handle.obj.IMessage;
 
 @CommandData(
         aliases = {"define"},
@@ -16,8 +16,8 @@ public class CustomPingCreator extends Command {
         this.commandListener = commandListener;
     }
 
-    public void execute(IMessage message, String suffix) {
-        String[] args = suffix.split(">");
+    public void execute(@UserSupplied String arg) {
+        String[] args = arg.split(">");
         commandListener.directlyRegister(args[0],new CustomPing(args[1]));
     }
 }

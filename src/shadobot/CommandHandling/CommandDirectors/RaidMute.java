@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 public class RaidMute extends Command{
     private boolean toggle = false;
 
-    public void execute(IMessage message, String args) throws RateLimitException,DiscordException,
+    public void execute(IMessage message) throws RateLimitException,DiscordException,
             MissingPermissionsException {
         IGuild guild = message.getChannel().getGuild();
 

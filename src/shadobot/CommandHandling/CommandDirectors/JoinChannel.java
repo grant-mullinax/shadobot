@@ -3,20 +3,19 @@ package shadobot.CommandHandling.CommandDirectors;
 import shadobot.CommandHandling.CommandAssemblyComponents.Command;
 import shadobot.CommandHandling.CommandAssemblyComponents.CommandData;
 import shadobot.CommandHandling.CommandAssemblyComponents.UserSupplied;
-import sx.blah.discord.handle.obj.IMessage;
+import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
 
 @CommandData(
-        aliases = {"ping"},
-        description = "it pings!"
+        aliases = {"joinchannel","jc"},
+        description = "makes the bot join a channel"
 )
-public class Ping2 extends Command{
+public class JoinChannel extends Command{
 
-    public void execute(@UserSupplied String arg, @UserSupplied String arg2, IMessage message) throws RateLimitException,
-            DiscordException,
+    public void execute(@UserSupplied IVoiceChannel channel) throws RateLimitException,DiscordException,
             MissingPermissionsException {
-        message.reply("pong "+arg+" 2 "+arg2);
+        channel.join();
     }
 }
