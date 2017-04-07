@@ -15,7 +15,7 @@ Commands are implimented by creating a class that extends Command with annotaton
 public class Ping extends Command{
 
     @Override
-    public void execute(IMessage message, String args) throws RateLimitException,DiscordException,
+    public void execute(IMessage message) throws RateLimitException,DiscordException,
             MissingPermissionsException {
         message.reply("pong");
     }
