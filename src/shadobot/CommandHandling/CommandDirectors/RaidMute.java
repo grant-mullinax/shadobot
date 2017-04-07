@@ -19,11 +19,10 @@ import java.util.concurrent.TimeUnit;
         description = "toggles a raid encounter, muting scrubs when enabled",
         requiredRole = "296093085069475842"
 )
-public class RaidMute extends Command{
+public class RaidMute extends Command{ //todo redo this with new system
     private boolean toggle = false;
 
-    @Override
-    public void execute(IMessage message, String args) throws RateLimitException,DiscordException,
+    public void execute(IMessage message) throws RateLimitException,DiscordException,
             MissingPermissionsException {
         IGuild guild = message.getChannel().getGuild();
 

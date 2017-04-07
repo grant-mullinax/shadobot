@@ -25,6 +25,8 @@ public final class MainWindow
 {
 	public static IGuild selectedGuild;
 
+	public static Boolean debug = true;
+
 	private HashMap<String,IGuild> guildRegister = new HashMap<String, IGuild>();
 	private HashMap<String,IRole> roleRegister = new HashMap<String, IRole>();
 	private HashMap<String,IVoiceChannel> voiceChannelRegister = new HashMap<String, IVoiceChannel>();
@@ -42,7 +44,7 @@ public final class MainWindow
 	// left side of pane
 	private JPanel serverSide;
 	private JButton muteButton;
-	private boolean muteToggle = false;
+	private JButton unMuteButton;
 	private JComboBox roleSelectBox;
 	private JComboBox voiceChannelSelectBox;
 	private JButton refreshButton;
@@ -81,16 +83,27 @@ public final class MainWindow
 		serverSide.setLayout(null);
 		serverSide.setBounds(10, 10, 255, 415);
 		serverSide.setBorder(BorderFactory.createEtchedBorder());
-		
+
+		//todo position these more intuitively
 		muteButton = new JButton("Mute");
 		muteButton.setBounds(10,20,80,30);
 		muteButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e)
 			{
-				mutePressed();
+				mutePressed(true);
 			}
 		});
 		serverSide.add(muteButton);
+
+		unMuteButton = new JButton("Unmute");
+		unMuteButton.setBounds(10,60,80,30);
+		unMuteButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e)
+			{
+				mutePressed(false);
+			}
+		});
+		serverSide.add(unMuteButton);
 
 		roleSelectBox = new JComboBox();
 		roleSelectBox.setBounds(100,20,140,30);
@@ -156,35 +169,55 @@ public final class MainWindow
 		}
 	}
 
+	public void dbug(String s)
+	{
+		if (!debug) return;
+		try
+		{
+			doc.insertString(doc.getLength(), s + "\n", docStyle);
+
+			final JScrollBar verticalScrollBar = scrollableLog.getVerticalScrollBar();
+			verticalScrollBar.setValue(verticalScrollBar.getMaximum()+16);
+		}
+		catch (BadLocationException e)
+		{
+			System.out.println(e);
+		}
+	}
+
 	public void logClear()
 	{
 		log.setText("");
 	}
 	
-	public void mutePressed()
+	public void mutePressed(Boolean toggle)
 	{
-
-		muteButton.setText(muteButton.getText() == "Mute" ? "Unmute" : "Mute");
 
 		for (IUser user: voiceChannelRegister.get((String) voiceChannelSelectBox.getSelectedItem()).getConnectedUsers
 				()){
 			if (!user.getRolesForGuild(selectedGuild).contains(roleRegister.get(roleSelectBox.getSelectedItem()))){
-				Shadobot.UI.logAdd(user.getName());
 				try {
-					selectedGuild.setMuteUser(user, !muteToggle);
+					selectedGuild.setMuteUser(user, toggle);
 				} catch (RateLimitException e) {
 					System.err.print("Sending messages too quickly!");
 					e.printStackTrace();
+					try {
+						TimeUnit.SECONDS.sleep((long)1);
+					}catch (InterruptedException e2){}
+
+					try {
+						selectedGuild.setMuteUser(user, toggle);
+					} catch (RateLimitException e2) {
+					} catch (DiscordException e2) {
+					} catch (MissingPermissionsException e2) {}
+
 				} catch (DiscordException e) {
 					System.err.print(e.getErrorMessage());
 					e.printStackTrace();
 				} catch (MissingPermissionsException e) {}
-				muteToggle = !muteToggle;
-			}
 			try {
-				TimeUnit.SECONDS.sleep(1);
-			}catch (InterruptedException e){
-
+				TimeUnit.SECONDS.sleep((long)0.2);
+			}catch (InterruptedException e){}
 			}
 		}
 	}

@@ -13,8 +13,7 @@ public class CustomPing extends Command{
         this.reply = reply;
     }
 
-    @Override
-    public void execute(IMessage message, String suffix) throws RateLimitException,DiscordException,
+    public void execute(IMessage message) throws RateLimitException,DiscordException,
             MissingPermissionsException {
         message.reply(reply);
     }
