@@ -4,4 +4,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface UserSupplied {}
+public @interface UserSupplied {
+    String description() default "N/A";
+}

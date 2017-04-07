@@ -3,20 +3,23 @@ package shadobot.CommandHandling.CommandDirectors;
 import shadobot.CommandHandling.CommandAssemblyComponents.Command;
 import shadobot.CommandHandling.CommandAssemblyComponents.CommandData;
 import shadobot.CommandHandling.CommandAssemblyComponents.UserSupplied;
-import sx.blah.discord.handle.obj.IMessage;
+import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
 
 @CommandData(
-        aliases = {"ping"},
-        description = "it pings!"
+        aliases = {"spamping"},
+        description = "it pings a lot!",
+        requiredRole = "299757370282606602"
 )
-public class Ping2 extends Command{
+public class SpamPing extends Command{
 
-    public void execute(@UserSupplied String arg, @UserSupplied String arg2, IMessage message) throws RateLimitException,
+    public void execute(IChannel channel, @UserSupplied String user, @UserSupplied String count) throws RateLimitException,
             DiscordException,
             MissingPermissionsException {
-        message.reply("pong "+arg+" 2 "+arg2);
+        for (int i = 0; i < Integer.parseInt(count); i++) {
+            channel.sendMessage(user);
+        }
     }
 }

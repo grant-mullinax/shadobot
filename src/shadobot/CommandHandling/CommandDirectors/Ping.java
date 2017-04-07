@@ -13,7 +13,7 @@ import sx.blah.discord.util.RateLimitException;
 )
 public class Ping extends Command{
 
-    public void execute(IMessage message, String args) throws RateLimitException,DiscordException,
+    public void execute(IMessage message) throws RateLimitException,DiscordException,
             MissingPermissionsException {
         message.reply("pong");
     }

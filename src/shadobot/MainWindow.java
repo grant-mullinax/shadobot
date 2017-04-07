@@ -25,6 +25,8 @@ public final class MainWindow
 {
 	public static IGuild selectedGuild;
 
+	public static Boolean debug = true;
+
 	private HashMap<String,IGuild> guildRegister = new HashMap<String, IGuild>();
 	private HashMap<String,IRole> roleRegister = new HashMap<String, IRole>();
 	private HashMap<String,IVoiceChannel> voiceChannelRegister = new HashMap<String, IVoiceChannel>();
@@ -161,6 +163,22 @@ public final class MainWindow
 			final JScrollBar verticalScrollBar = scrollableLog.getVerticalScrollBar();
 			verticalScrollBar.setValue(verticalScrollBar.getMaximum()+16);
 		} 
+		catch (BadLocationException e)
+		{
+			System.out.println(e);
+		}
+	}
+
+	public void dbug(String s)
+	{
+		if (!debug) return;
+		try
+		{
+			doc.insertString(doc.getLength(), s + "\n", docStyle);
+
+			final JScrollBar verticalScrollBar = scrollableLog.getVerticalScrollBar();
+			verticalScrollBar.setValue(verticalScrollBar.getMaximum()+16);
+		}
 		catch (BadLocationException e)
 		{
 			System.out.println(e);
