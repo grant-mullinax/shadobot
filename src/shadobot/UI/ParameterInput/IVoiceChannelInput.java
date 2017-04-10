@@ -6,13 +6,11 @@ import sx.blah.discord.handle.obj.IVoiceChannel;
 import javax.swing.*;
 import java.util.HashMap;
 
-public class IVoiceChannelInput extends ParameterInputElement {
-    private JComboBox interfaceElement = new JComboBox();
+public class IVoiceChannelInput extends JComboBox implements ParameterInputComponent {
     HashMap<String,IVoiceChannel> voiceChannelRegister = new HashMap<String, IVoiceChannel>();
 
-    public IVoiceChannelInput(int x, int y, int w, int h, JFrame frame, IGuild guild){
-
-        interfaceElement.setBounds(x,y,w,h);
+    public IVoiceChannelInput(IGuild guild){
+        super();
 
         String[] channelNames = new String[guild.getVoiceChannels().size()];
         for (int i = 0; i < guild.getVoiceChannels().size(); i++) {
@@ -21,11 +19,10 @@ public class IVoiceChannelInput extends ParameterInputElement {
             voiceChannelRegister.put(voiceChannel.getName(),voiceChannel);
         }
         DefaultComboBoxModel voiceChannelBoxModel = new DefaultComboBoxModel(channelNames);
-        interfaceElement.setModel(voiceChannelBoxModel);
-        frame.add(interfaceElement);
+        setModel(voiceChannelBoxModel);
     }
 
     public IVoiceChannel getValue(){
-        return voiceChannelRegister.get(interfaceElement.getSelectedItem());
+        return voiceChannelRegister.get(getSelectedItem());
     }
 }

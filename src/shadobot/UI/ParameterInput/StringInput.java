@@ -4,18 +4,13 @@ import sx.blah.discord.handle.obj.IGuild;
 
 import javax.swing.*;
 
-/**
- * Created by shado on 4/9/2017.
- */
-public class StringInput extends ParameterInputElement {
-    private JTextField interfaceElement = new JTextField();
+public class StringInput extends JTextField implements ParameterInputComponent {
 
-    public StringInput(int x, int y, int w, int h, JFrame frame, IGuild guild){
-        interfaceElement.setBounds(x,y,w,h);
-        frame.add(interfaceElement);
+    public StringInput(IGuild guild){
+        super();
     }
 
     public String getValue(){
-        return interfaceElement.getText();
+        return getText();
     }
 }

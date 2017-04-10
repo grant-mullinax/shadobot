@@ -17,9 +17,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public final class MainWindow
@@ -28,9 +28,11 @@ public final class MainWindow
 
 	public static Boolean debug = true;
 
-	private HashMap<String,IGuild> guildRegister = new HashMap<String, IGuild>();
-	private HashMap<String,IRole> roleRegister = new HashMap<String, IRole>();
-	private HashMap<String,IVoiceChannel> voiceChannelRegister = new HashMap<String, IVoiceChannel>();
+	private HashMap<String,IGuild> guildRegister = new HashMap<String, IGuild>(); //todo maybe i can remove the need for this using objects
+
+	private Command targetCommand;
+	private Method targetMethod;
+	private ArrayList<JComponent>  parameterInputComponents = new ArrayList<JComponent>();
 
 	private JFrame window;
 
@@ -39,12 +41,10 @@ public final class MainWindow
 	private JMenu serverMenu;
 	private ButtonGroup serverGroup;
 
-	// left side of pane
-	private JButton refreshButton;
-
-	// right side of layout
-	private JTextPane log;
 	private JTextField commandline;
+	private JButton executeButton;
+
+	private JTextPane log;
 	private JScrollPane scrollableLog;
 
 	private StyledDocument doc;
@@ -70,53 +70,10 @@ public final class MainWindow
 
 		window.setJMenuBar(menuBar);
 		
-		/* left side
-		serverSide = new JPanel();
-		serverSide.setLayout(null);
-		serverSide.setBounds(10, 10, 160, 415);
-		serverSide.setBorder(BorderFactory.createEtchedBorder());*/
-
-		/*muteButton = new JButton("Mute");
-		muteButton.setBounds(10,20,80,30);
-		muteButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e)
-			{
-				mutePressed(true);
-			}
-		});
-		serverSide.add(muteButton);
-
-		unMuteButton = new JButton("Unmute");
-		unMuteButton.setBounds(10,60,80,30);
-		unMuteButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e)
-			{
-				mutePressed(false);
-			}
-		});
-		serverSide.add(unMuteButton);
-		*/
-
-
-		/*roleSelectBox = new JComboBox();
-		roleSelectBox.setBounds(10,20,140,30);
-		window.add(roleSelectBox);*/
-		
-		//to-do: functionality
-		/*refreshButton = new JButton("Refresh");
-		refreshButton.setBounds(10,370,80,30);
-		window.add(refreshButton);*/
-		
-		// right side todo convert to setbounds positioning for right side
-		/*logSide = new JPanel();
-		logSide.setBounds(170, 10, 600, 415);
-		logSide.setBorder(BorderFactory.createEtchedBorder());*/
-		
 		log = new JTextPane();
 		log.setEditable(false);
 		doc = log.getStyledDocument();
 		docStyle = new SimpleAttributeSet();
-		//log.setBounds(10,10,755,470);
 
 		scrollableLog = new JScrollPane(log);
 		scrollableLog.setBounds(10,10,755,360);
@@ -127,21 +84,24 @@ public final class MainWindow
 		commandline.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event)
 			{
-				logAdd("Executing "+commandline.getText()+" from command line");
 				Command command = Shadobot.commandListener.getRegisteredCommand(commandline.getText());
 				if (command!=null){
-					logAdd("found "+commandline.getText());
 					for (Method method:command.getClass().getMethods()) {
 						if (method.getName().equals("execute")) {
+							for (JComponent component:parameterInputComponents) window.remove(component);
+							targetCommand = command;
+							targetMethod = method;
 
-							Annotation[][] paramAnnotations = method.getParameterAnnotations();
+							parameterInputComponents = new ArrayList<JComponent>();
 							Class[] parameterTypes = method.getParameterTypes();
 
 							for (int i = 0; i < parameterTypes.length; i++) {
 								if (typeToInputMap.get(parameterTypes[i])!=null) {
 									try {
-										ParameterInputElement element = (ParameterInputElement)typeToInputMap.get(parameterTypes[i])
-												.getConstructors()[0].newInstance(200+(130*i),380,140,30, window, selectedGuild);
+										JComponent element = (JComponent)typeToInputMap.get(parameterTypes[i]).getConstructors()[0].newInstance(selectedGuild);
+										element.setBounds(160+(i*110),380,100,30);
+										window.add(element);
+										parameterInputComponents.add(element);
 									} catch (IllegalAccessException e) {
 										e.printStackTrace();
 									} catch (InstantiationException e) {
@@ -151,6 +111,8 @@ public final class MainWindow
 									}
 								}
 							}
+							window.validate();
+							window.repaint();
 						}
 					}
 				}
@@ -158,20 +120,28 @@ public final class MainWindow
 		});
 		window.add(commandline);
 
-		
-		/*clearLogButton = new JButton("Clear Log");
-		clearLogButton.setPreferredSize(new Dimension(180, 50));
-		clearLogButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent arg0)
-					{
-						logClear();
-					}
+		executeButton = new JButton("Execute");
+		executeButton.setBounds(680,380,80,30);
+		executeButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event)
+			{
+				Object[] params = new Object[targetMethod.getParameterTypes().length];
+				for (int i = 0; i < parameterInputComponents.size(); i++) {
+					params[i] = ((ParameterInputComponent)parameterInputComponents.get(i)).getValue();
+				}
+
+				try {
+					Shadobot.UI.logAdd("Executing "+targetCommand.getClass().getSimpleName()+" from console");
+					targetMethod.invoke(targetCommand, params);
+				} catch (IllegalAccessException e){
+					e.printStackTrace();
+				} catch (InvocationTargetException e){
+					e.printStackTrace();
+				}
+			}
 		});
-		logSide.add(clearLogButton, BorderLayout.SOUTH);*/
-		
-		// total window
-		/*window.add(logSide, BorderLayout.EAST);
-		window.add(serverSide, BorderLayout.WEST);*/
+		window.add(executeButton);
+
 		window.setPreferredSize(new Dimension(775, 475));
 		
 		window.pack();
@@ -181,61 +151,21 @@ public final class MainWindow
 		window.setVisible(true);
 	}
 	
-	public void logAdd(String s)
-	{
-		try
-		{
+	public void logAdd(String s) {
+		try {
 			doc.insertString(doc.getLength(), s + "\n", docStyle);
 
 			final JScrollBar verticalScrollBar = scrollableLog.getVerticalScrollBar();
 			verticalScrollBar.setValue(verticalScrollBar.getMaximum()+16);
 		} 
-		catch (BadLocationException e)
-		{
+		catch (BadLocationException e) {
 			System.out.println(e);
 		}
 	}
 
-	public void logClear()
-	{
-		log.setText("");
-	}
-
-	/*public void mutePressed(Boolean toggle)
-	{
-
-		for (IUser user: voiceChannelRegister.get((String) voiceChannelSelectBox.getSelectedItem()).getConnectedUsers
-				()){
-			if (!user.getRolesForGuild(selectedGuild).contains(roleRegister.get(roleSelectBox.getSelectedItem()))){
-				try {
-					selectedGuild.setMuteUser(user, toggle);
-				} catch (RateLimitException e) {
-					System.err.print("Sending messages too quickly!");
-					e.printStackTrace();
-					try {
-						TimeUnit.SECONDS.sleep((long)1);
-					}catch (InterruptedException e2){}
-
-					try {
-						selectedGuild.setMuteUser(user, toggle);
-					} catch (RateLimitException e2) {
-					} catch (DiscordException e2) {
-					} catch (MissingPermissionsException e2) {}
-
-				} catch (DiscordException e) {
-					System.err.print(e.getErrorMessage());
-					e.printStackTrace();
-				} catch (MissingPermissionsException e) {}
-			try {
-				TimeUnit.SECONDS.sleep((long)0.2);
-			}catch (InterruptedException e){}
-			}
-		}
-	}*/
-
 	public void addServer(IGuild guild){
 		JRadioButtonMenuItem serverMenuItem = new JRadioButtonMenuItem(guild.getName());
-		if (guild.getName().equals("OFF MY STOOP")) {
+		if (guild.getName().equals("test zone")) {
 			serverMenuItem.setSelected(true);
 			setSelectedGuild(guild);
 		}
@@ -244,7 +174,6 @@ public final class MainWindow
 		serverMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Shadobot.UI.setSelectedGuild(e.getActionCommand());
-				Shadobot.UI.logAdd("selected "+e.getActionCommand());
 			}
 		});
 
@@ -253,6 +182,11 @@ public final class MainWindow
 
 	public void setSelectedGuild(IGuild guild){
 		selectedGuild = guild;
+		Shadobot.UI.logAdd("selected "+guild.getName());
+
+		commandline.setText("");
+		for (JComponent component:parameterInputComponents) window.remove(component);
+		parameterInputComponents = new ArrayList<JComponent>();
 	}
 
 	public void setSelectedGuild(String name){
