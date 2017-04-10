@@ -11,7 +11,7 @@ public @interface CommandData {
 
     String example() default "N/A";
 
-    String requiredRole() default "";
+    String requiredRole() default "N/A";
 
     boolean requiresPrefix() default true;
 

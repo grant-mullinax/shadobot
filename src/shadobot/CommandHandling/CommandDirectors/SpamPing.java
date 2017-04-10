@@ -15,7 +15,7 @@ import sx.blah.discord.util.RateLimitException;
 )
 public class SpamPing extends Command{
 
-    public void execute(IChannel channel, @UserSupplied String user, @UserSupplied String count) throws RateLimitException,
+    public void execute(IChannel channel, String user, @UserSupplied String count) throws RateLimitException,
             DiscordException,
             MissingPermissionsException {
         for (int i = 0; i < Integer.parseInt(count); i++) {

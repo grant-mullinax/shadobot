@@ -52,10 +52,14 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                 Shadobot.UI.logAdd(debugMessage);
                 Shadobot.UI.logAdd(guild.getRoleByID(annotation.requiredRole()).getID());*/
 
-                if (guild.getRoleByID(annotation.requiredRole())!=null) {
-                    if (!message.getAuthor().getRolesForGuild(guild).contains(guild.getRoleByID(annotation.requiredRole()))) return;
-                }else{
-                    Shadobot.UI.logAdd(command.getClass().getSimpleName() + " required role is invalid!");
+                if (annotation.requiredRole()!="N/A") {
+                    if (guild.getRoleByID(annotation.requiredRole()) != null) {
+                        if (!message.getAuthor().getRolesForGuild(guild).contains(guild.getRoleByID(annotation.requiredRole()))){
+                            return;
+                        }
+                    } else {
+                        Shadobot.UI.logAdd(command.getClass().getSimpleName() + "'s required role is invalid!");
+                    }
                 }
             }
 
@@ -100,6 +104,7 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
         }*/
     }
 
+    //todo add nullparamexception
     private void execute(Command command, IMessage message, String[] splitMessage){
         //todo can potentially reduce runtimes by adding a execute method registry
         for (Method method:command.getClass().getMethods()){
@@ -110,11 +115,9 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                 Annotation[][] paramAnnotations = method.getParameterAnnotations();
                 Class[] parameterTypes = method.getParameterTypes();
 
-                /*todo
-                tell the user if they put invalid param
-                */
+                //todo tell the user if they put invalid param
 
-                int userSuppliedParams = 1; //starts at 1 for the command name
+                int userSuppliedParams = 1; //0 is the command name itself
                 for (int i = 0; i < parameterTypes.length; i++) {
                     if (isUserSupplied(paramAnnotations[i]) && splitMessage.length >= userSuppliedParams+1 &&
                             !splitMessage[userSuppliedParams].equals("_")) {
@@ -146,6 +149,9 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                                     break;
                                 }
                             }
+                        }else{
+                            Shadobot.UI.logAdd("Something has gone wrong! "
+                                    +Command.class.getSimpleName()+" is looking for an user provided "+parameterTypes[i].getName());
                         }
                         userSuppliedParams++;
                     }else{
@@ -160,6 +166,9 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                             params[i] = splitMessage;
                         } else if (parameterTypes[i].equals(IGuild.class)) { //get the guild the message was sent in
                             params[i] = message.getGuild();
+                        }else{
+                            Shadobot.UI.logAdd("Something has gone wrong! "
+                                    +Command.class.getSimpleName()+" is looking for an unprovided "+parameterTypes[i].getName());
                         }
                     }
                 }

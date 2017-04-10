@@ -17,8 +17,13 @@ public class Roles extends Command{
 
     public void execute(IGuild guild, IChannel channel) throws RateLimitException,DiscordException,
             MissingPermissionsException {
-        String text = "Roles: \n";
-        for (IRole role: guild.getRoles()) text+=role.getName() + " : "+role.getID()+"\n";
-        channel.sendMessage(text);
+        String text = "Roles: \n```everyone : "+guild.getRoles().get(0).getID()+"\n"; //so @everyone doesn't ping everyone
+
+        for (int i = 1; i < guild.getRoles().size() ; i++) {
+            IRole role = guild.getRoles().get(i);
+            text+=role.getName() + " : "+role.getID()+"\n";
+        }
+
+        channel.sendMessage(text+"```");
     }
 }

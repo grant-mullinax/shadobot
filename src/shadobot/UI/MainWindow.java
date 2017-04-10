@@ -1,14 +1,13 @@
-package shadobot;
+package shadobot.UI;
 
-import shadobot.MiscListeners.UIListeners.GuildSelectionListener;
+import shadobot.CommandHandling.CommandAssemblyComponents.Command;
+import shadobot.Shadobot;
+import shadobot.UI.ParameterInput.*;
 import sx.blah.discord.api.IDiscordClient;
+import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IRole;
-import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.IVoiceChannel;
-import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.MissingPermissionsException;
-import sx.blah.discord.util.RateLimitException;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
@@ -18,8 +17,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 
 public final class MainWindow
 {
@@ -38,21 +39,12 @@ public final class MainWindow
 	private JMenu serverMenu;
 	private ButtonGroup serverGroup;
 
-	private GuildSelectionListener guildSelectionListener = new GuildSelectionListener(); //todo maybe handle it like
-	// the mute button
-
 	// left side of pane
-	private JPanel serverSide;
-	private JButton muteButton;
-	private JButton unMuteButton;
-	private JComboBox roleSelectBox;
-	private JComboBox voiceChannelSelectBox;
 	private JButton refreshButton;
 
 	// right side of layout
-	private JPanel logSide;
-	private JButton clearLogButton;
 	private JTextPane log;
+	private JTextField commandline;
 	private JScrollPane scrollableLog;
 
 	private StyledDocument doc;
@@ -78,14 +70,13 @@ public final class MainWindow
 
 		window.setJMenuBar(menuBar);
 		
-		// left side
+		/* left side
 		serverSide = new JPanel();
 		serverSide.setLayout(null);
-		serverSide.setBounds(10, 10, 255, 415);
-		serverSide.setBorder(BorderFactory.createEtchedBorder());
+		serverSide.setBounds(10, 10, 160, 415);
+		serverSide.setBorder(BorderFactory.createEtchedBorder());*/
 
-		//todo position these more intuitively
-		muteButton = new JButton("Mute");
+		/*muteButton = new JButton("Mute");
 		muteButton.setBounds(10,20,80,30);
 		muteButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e)
@@ -104,35 +95,71 @@ public final class MainWindow
 			}
 		});
 		serverSide.add(unMuteButton);
+		*/
 
-		roleSelectBox = new JComboBox();
-		roleSelectBox.setBounds(100,20,140,30);
-		serverSide.add(roleSelectBox);
 
-		voiceChannelSelectBox = new JComboBox();
-		voiceChannelSelectBox.setBounds(100,60,140,30);
-		serverSide.add(voiceChannelSelectBox);
+		/*roleSelectBox = new JComboBox();
+		roleSelectBox.setBounds(10,20,140,30);
+		window.add(roleSelectBox);*/
 		
 		//to-do: functionality
-		refreshButton = new JButton("Refresh");
+		/*refreshButton = new JButton("Refresh");
 		refreshButton.setBounds(10,370,80,30);
-		serverSide.add(refreshButton);
+		window.add(refreshButton);*/
 		
 		// right side todo convert to setbounds positioning for right side
-		logSide = new JPanel();
-		logSide.setBounds(280, 10, 600, 415);
-		//logSide.setBorder(BorderFactory.createEtchedBorder());
+		/*logSide = new JPanel();
+		logSide.setBounds(170, 10, 600, 415);
+		logSide.setBorder(BorderFactory.createEtchedBorder());*/
 		
 		log = new JTextPane();
 		log.setEditable(false);
 		doc = log.getStyledDocument();
 		docStyle = new SimpleAttributeSet();
-		log.setPreferredSize(new Dimension(550, 350));
+		//log.setBounds(10,10,755,470);
 
 		scrollableLog = new JScrollPane(log);
-		logSide.add(scrollableLog, BorderLayout.NORTH);
+		scrollableLog.setBounds(10,10,755,360);
+		window.add(scrollableLog);
+
+		commandline = new JTextField();
+		commandline.setBounds(10,380,140,30);
+		commandline.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event)
+			{
+				logAdd("Executing "+commandline.getText()+" from command line");
+				Command command = Shadobot.commandListener.getRegisteredCommand(commandline.getText());
+				if (command!=null){
+					logAdd("found "+commandline.getText());
+					for (Method method:command.getClass().getMethods()) {
+						if (method.getName().equals("execute")) {
+
+							Annotation[][] paramAnnotations = method.getParameterAnnotations();
+							Class[] parameterTypes = method.getParameterTypes();
+
+							for (int i = 0; i < parameterTypes.length; i++) {
+								if (typeToInputMap.get(parameterTypes[i])!=null) {
+									try {
+										ParameterInputElement element = (ParameterInputElement)typeToInputMap.get(parameterTypes[i])
+												.getConstructors()[0].newInstance(200+(130*i),380,140,30, window, selectedGuild);
+									} catch (IllegalAccessException e) {
+										e.printStackTrace();
+									} catch (InstantiationException e) {
+										e.printStackTrace();
+									} catch (InvocationTargetException e) {
+										e.printStackTrace();
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		});
+		window.add(commandline);
+
 		
-		clearLogButton = new JButton("Clear Log");
+		/*clearLogButton = new JButton("Clear Log");
 		clearLogButton.setPreferredSize(new Dimension(180, 50));
 		clearLogButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0)
@@ -140,12 +167,12 @@ public final class MainWindow
 						logClear();
 					}
 		});
-		logSide.add(clearLogButton, BorderLayout.SOUTH);
+		logSide.add(clearLogButton, BorderLayout.SOUTH);*/
 		
 		// total window
-		window.add(logSide, BorderLayout.EAST);
-		window.add(serverSide, BorderLayout.WEST);
-		window.setPreferredSize(new Dimension(900, 490));
+		/*window.add(logSide, BorderLayout.EAST);
+		window.add(serverSide, BorderLayout.WEST);*/
+		window.setPreferredSize(new Dimension(775, 475));
 		
 		window.pack();
 		
@@ -169,28 +196,12 @@ public final class MainWindow
 		}
 	}
 
-	public void dbug(String s)
-	{
-		if (!debug) return;
-		try
-		{
-			doc.insertString(doc.getLength(), s + "\n", docStyle);
-
-			final JScrollBar verticalScrollBar = scrollableLog.getVerticalScrollBar();
-			verticalScrollBar.setValue(verticalScrollBar.getMaximum()+16);
-		}
-		catch (BadLocationException e)
-		{
-			System.out.println(e);
-		}
-	}
-
 	public void logClear()
 	{
 		log.setText("");
 	}
-	
-	public void mutePressed(Boolean toggle)
+
+	/*public void mutePressed(Boolean toggle)
 	{
 
 		for (IUser user: voiceChannelRegister.get((String) voiceChannelSelectBox.getSelectedItem()).getConnectedUsers
@@ -220,7 +231,7 @@ public final class MainWindow
 			}catch (InterruptedException e){}
 			}
 		}
-	}
+	}*/
 
 	public void addServer(IGuild guild){
 		JRadioButtonMenuItem serverMenuItem = new JRadioButtonMenuItem(guild.getName());
@@ -230,38 +241,30 @@ public final class MainWindow
 		}
 		serverGroup.add(serverMenuItem);
 		serverMenu.add(serverMenuItem);
-		serverMenuItem.addActionListener(guildSelectionListener);
+		serverMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Shadobot.UI.setSelectedGuild(e.getActionCommand());
+				Shadobot.UI.logAdd("selected "+e.getActionCommand());
+			}
+		});
 
 		guildRegister.put(guild.getName(),guild);
 	}
 
-	public void setSelectedGuild(IGuild guild){ //todo handle these with their own combobox extention
+	public void setSelectedGuild(IGuild guild){
 		selectedGuild = guild;
-
-		roleRegister = new HashMap<String, IRole>();
-		String[] roleNames = new String[guild.getRoles().size()];
-		for (int i = 0; i < guild.getRoles().size(); i++) {
-			IRole role = guild.getRoles().get(i);
-			roleNames[i] = role.getName();
-			roleRegister.put(role.getName(),role);
-		}
-		DefaultComboBoxModel roleBoxModel = new DefaultComboBoxModel(roleNames);
-		roleSelectBox.setModel(roleBoxModel);
-
-		voiceChannelRegister = new HashMap<String, IVoiceChannel>();
-		String[] channelNames = new String[guild.getVoiceChannels().size()];
-		for (int i = 0; i < guild.getVoiceChannels().size(); i++) {
-			IVoiceChannel voiceChannel = guild.getVoiceChannels().get(i);
-			channelNames[i] = voiceChannel.getName();
-			voiceChannelRegister.put(voiceChannel.getName(),voiceChannel);
-			if (voiceChannel.getName().equals("speaker")) voiceChannelSelectBox.setSelectedIndex(i);
-		}
-		DefaultComboBoxModel voiceChannelBoxModel = new DefaultComboBoxModel(channelNames);
-		voiceChannelSelectBox.setModel(voiceChannelBoxModel);
 	}
 
 	public void setSelectedGuild(String name){
 		setSelectedGuild(guildRegister.get(name));
 	}
-	
+
+	public static final HashMap<Class,Class> typeToInputMap = new HashMap<Class, Class>(){ //is it too jank?
+		{
+			put(IChannel.class, IChannelInput.class);
+			put(IRole.class, IRoleInput.class);
+			put(IVoiceChannel.class, IVoiceChannelInput.class);
+			put(String.class, StringInput.class);
+		}
+	};
 }
