@@ -1,11 +1,15 @@
 package shadobot;
 
-import shadobot.CommandHandling.CommandDirectors.*;
 import shadobot.CommandHandling.CommandDirectors.Core.Example;
 import shadobot.CommandHandling.CommandDirectors.Core.Help;
 import shadobot.CommandHandling.CommandDirectors.Core.Roles;
+import shadobot.CommandHandling.CommandDirectors.CustomPingCreator;
+import shadobot.CommandHandling.CommandDirectors.JoinChannel;
+import shadobot.CommandHandling.CommandDirectors.RaidMute;
+import shadobot.CommandHandling.CommandDirectors.SpamPing;
 import shadobot.CommandHandling.CommandListener;
-import shadobot.MiscListeners.GuildJoinListener;
+import shadobot.UI.MainWindow;
+import shadobot.UI.MiscListeners.GuildJoinListener;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.EventDispatcher;
@@ -22,6 +26,7 @@ public class Shadobot {
 
     public static IDiscordClient client;
     public static MainWindow UI;
+    public static CommandListener commandListener;
 
     public static void main(String[] args)
     {
@@ -48,7 +53,7 @@ public class Shadobot {
         UI = new MainWindow();
         UI.init(client);
 
-        CommandListener commandListener = new CommandListener(PREFIX);
+        commandListener = new CommandListener(PREFIX);
         dispatcher.registerListener(commandListener);
         dispatcher.registerListener(new GuildJoinListener());
 

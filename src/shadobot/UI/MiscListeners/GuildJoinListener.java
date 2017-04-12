@@ -1,4 +1,4 @@
-package shadobot.MiscListeners;
+package shadobot.UI.MiscListeners;
 
 import shadobot.Shadobot;
 import sx.blah.discord.api.events.IListener;
