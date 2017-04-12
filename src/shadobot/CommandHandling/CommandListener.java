@@ -1,9 +1,6 @@
 package shadobot.CommandHandling;
 
-import shadobot.CommandHandling.CommandAssemblyComponents.Command;
-import shadobot.CommandHandling.CommandAssemblyComponents.CommandData;
-import shadobot.CommandHandling.CommandAssemblyComponents.CommandNetwork;
-import shadobot.CommandHandling.CommandAssemblyComponents.UserSupplied;
+import shadobot.CommandHandling.CommandAssemblyComponents.*;
 import shadobot.Shadobot;
 import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
@@ -52,7 +49,7 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                 Shadobot.UI.logAdd(debugMessage);
                 Shadobot.UI.logAdd(guild.getRoleByID(annotation.requiredRole()).getID());*/
 
-                if (annotation.requiredRole()!="N/A") {
+                if (annotation.requiredRole().equals("N/A")) {
                     if (guild.getRoleByID(annotation.requiredRole()) != null) {
                         if (!message.getAuthor().getRolesForGuild(guild).contains(guild.getRoleByID(annotation.requiredRole()))){
                             return;
@@ -69,14 +66,21 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                 execute(command, message, splitMessage);
                 if (annotation.deletePrompt()) message.delete();
 
+            } catch (InvalidParamException e) {
+                System.err.print(e.getErrorMessage());
+
             } catch (RateLimitException e) {
-                System.err.print("Sending messages too quickly!");
+                Shadobot.UI.logAdd("Sending messages too quickly!");
                 e.printStackTrace();
             } catch (DiscordException e) {
                 System.err.print(e.getErrorMessage());
                 e.printStackTrace();
             } catch (MissingPermissionsException e) {
                 System.err.print("Missing permissions for channel!");
+                e.printStackTrace();
+            } catch (IllegalAccessException e){
+                e.printStackTrace();
+            } catch (InvocationTargetException e){
                 e.printStackTrace();
             }
         }
@@ -105,8 +109,9 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
     }
 
     //todo add nullparamexception
-    private void execute(Command command, IMessage message, String[] splitMessage){
-        //todo can potentially reduce runtimes by adding a execute method registry
+    private void execute(Command command, IMessage message, String[] splitMessage)
+            throws IllegalAccessException,InvocationTargetException,InvalidParamException{
+
         for (Method method:command.getClass().getMethods()){
             if (method.getName().equals("execute")){
 
@@ -122,14 +127,17 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                     if (isUserSupplied(paramAnnotations[i]) && splitMessage.length >= userSuppliedParams+1 &&
                             !splitMessage[userSuppliedParams].equals("_")) {
                         /*USER SUPPLIED*/
+                        boolean paramFound = false;
                         if (parameterTypes[i].equals(String.class)) {
                             params[i] = splitMessage[userSuppliedParams];
+                            paramFound = true;
 
                         } else if (parameterTypes[i].equals(IVoiceChannel.class)) {
                             for (IVoiceChannel channel:message.getGuild().getVoiceChannels()){
                                 Shadobot.UI.logAdd(channel.getName());
                                 if (channel.getName().equals(splitMessage[userSuppliedParams])){
                                     params[i] = channel;
+                                    paramFound = true;
                                     break;
                                 }
                             }
@@ -138,6 +146,7 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                             for (IChannel channel:message.getGuild().getChannels()){
                                 if (channel.getName().equals(splitMessage[userSuppliedParams])){
                                     params[i] = channel;
+                                    paramFound = true;
                                     break;
                                 }
                             }
@@ -146,6 +155,7 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                             for (IRole role:message.getGuild().getRoles()){
                                 if (role.getName().equals(splitMessage[userSuppliedParams])){
                                     params[i] = role;
+                                    paramFound = true;
                                     break;
                                 }
                             }
@@ -153,6 +163,8 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                             Shadobot.UI.logAdd("Something has gone wrong! "
                                     +Command.class.getSimpleName()+" is looking for an user provided "+parameterTypes[i].getName());
                         }
+                        if (!paramFound) throw new InvalidParamException();
+
                         userSuppliedParams++;
                     }else{
                         /*USER OMITTED*/
@@ -172,19 +184,7 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                         }
                     }
                 }
-
-                try {
-                    /*String debugMessage = "with params: ";
-                    for (Object param: params) debugMessage += param.getClass().getSimpleName()+", ";
-                    Shadobot.UI.logAdd(debugMessage);*/
-
-                    method.invoke(command, params);
-                } catch (IllegalAccessException e){
-                    e.printStackTrace();
-                } catch (InvocationTargetException e){
-                    e.printStackTrace();
-                }
-
+                method.invoke(command, params);
             }
         }
     }

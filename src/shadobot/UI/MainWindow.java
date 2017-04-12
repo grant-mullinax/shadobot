@@ -22,8 +22,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public final class MainWindow
-{
+public final class MainWindow {
 	public static IGuild selectedGuild;
 
 	public static Boolean debug = true;
@@ -55,7 +54,6 @@ public final class MainWindow
 		window = new JFrame("Shadobot");
 		window.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 		window.setLayout(null);
-		window.setLocation(300,100);
 
 		//Create the menu bar.
 		menuBar = new JMenuBar();
@@ -82,9 +80,8 @@ public final class MainWindow
 		commandline = new JTextField();
 		commandline.setBounds(10,380,140,30);
 		commandline.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent event)
-			{
-				Command command = Shadobot.commandListener.getRegisteredCommand(commandline.getText());
+			public void actionPerformed(ActionEvent event) {
+				Command command = Shadobot.commandListener.getRegisteredCommand(Shadobot.commandListener.getPrefix()+commandline.getText().toLowerCase());
 				if (command!=null){
 					for (Method method:command.getClass().getMethods()) {
 						if (method.getName().equals("execute")) {
@@ -95,11 +92,13 @@ public final class MainWindow
 							parameterInputComponents = new ArrayList<JComponent>();
 							Class[] parameterTypes = method.getParameterTypes();
 
+							//int componentOffset = 160;
 							for (int i = 0; i < parameterTypes.length; i++) {
 								if (typeToInputMap.get(parameterTypes[i])!=null) {
 									try {
 										JComponent element = (JComponent)typeToInputMap.get(parameterTypes[i]).getConstructors()[0].newInstance(selectedGuild);
 										element.setBounds(160+(i*110),380,100,30);
+										//componentOffset+=300+10;
 										window.add(element);
 										parameterInputComponents.add(element);
 									} catch (IllegalAccessException e) {
@@ -123,8 +122,7 @@ public final class MainWindow
 		executeButton = new JButton("Execute");
 		executeButton.setBounds(680,380,80,30);
 		executeButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent event)
-			{
+			public void actionPerformed(ActionEvent event) {
 				Object[] params = new Object[targetMethod.getParameterTypes().length];
 				for (int i = 0; i < parameterInputComponents.size(); i++) {
 					params[i] = ((ParameterInputComponent)parameterInputComponents.get(i)).getValue();
@@ -143,6 +141,7 @@ public final class MainWindow
 		window.add(executeButton);
 
 		window.setPreferredSize(new Dimension(775, 475));
+		window.setLocation(300,100);
 		
 		window.pack();
 		
@@ -157,8 +156,7 @@ public final class MainWindow
 
 			final JScrollBar verticalScrollBar = scrollableLog.getVerticalScrollBar();
 			verticalScrollBar.setValue(verticalScrollBar.getMaximum()+16);
-		} 
-		catch (BadLocationException e) {
+		} catch (BadLocationException e) {
 			System.out.println(e);
 		}
 	}
@@ -173,7 +171,7 @@ public final class MainWindow
 		serverMenu.add(serverMenuItem);
 		serverMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Shadobot.UI.setSelectedGuild(e.getActionCommand());
+				setSelectedGuild(e.getActionCommand());
 			}
 		});
 
