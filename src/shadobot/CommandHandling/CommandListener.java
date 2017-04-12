@@ -127,17 +127,14 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                     if (isUserSupplied(paramAnnotations[i]) && splitMessage.length >= userSuppliedParams+1 &&
                             !splitMessage[userSuppliedParams].equals("_")) {
                         /*USER SUPPLIED*/
-                        boolean paramFound = false;
                         if (parameterTypes[i].equals(String.class)) {
                             params[i] = splitMessage[userSuppliedParams];
-                            paramFound = true;
 
                         } else if (parameterTypes[i].equals(IVoiceChannel.class)) {
                             for (IVoiceChannel channel:message.getGuild().getVoiceChannels()){
                                 Shadobot.UI.logAdd(channel.getName());
                                 if (channel.getName().equals(splitMessage[userSuppliedParams])){
                                     params[i] = channel;
-                                    paramFound = true;
                                     break;
                                 }
                             }
@@ -146,7 +143,6 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                             for (IChannel channel:message.getGuild().getChannels()){
                                 if (channel.getName().equals(splitMessage[userSuppliedParams])){
                                     params[i] = channel;
-                                    paramFound = true;
                                     break;
                                 }
                             }
@@ -155,7 +151,6 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                             for (IRole role:message.getGuild().getRoles()){
                                 if (role.getName().equals(splitMessage[userSuppliedParams])){
                                     params[i] = role;
-                                    paramFound = true;
                                     break;
                                 }
                             }
@@ -163,7 +158,7 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                             Shadobot.UI.logAdd("Something has gone wrong! "
                                     +Command.class.getSimpleName()+" is looking for an user provided "+parameterTypes[i].getName());
                         }
-                        if (!paramFound) throw new InvalidParamException();
+                        if (params[i]==null) throw new InvalidParamException();
 
                         userSuppliedParams++;
                     }else{
