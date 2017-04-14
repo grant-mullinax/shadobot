@@ -34,7 +34,7 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
         final String[] splitMessage = message.getContent().split(" ");
         final Command command = registeredCommands.get(splitMessage[0].toLowerCase());
 
-        if (command!=null) if (command.check(message)) {
+        if (command!=null) {
 
             IGuild guild = message.getChannel().getGuild();
             CommandData annotation = command.getClass().getAnnotation(CommandData.class);
@@ -49,7 +49,7 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                 Shadobot.UI.logAdd(debugMessage);
                 Shadobot.UI.logAdd(guild.getRoleByID(annotation.requiredRole()).getID());*/
 
-                if (annotation.requiredRole().equals("N/A")) {
+                if (!annotation.requiredRole().equals("N/A")) {
                     if (guild.getRoleByID(annotation.requiredRole()) != null) {
                         if (!message.getAuthor().getRolesForGuild(guild).contains(guild.getRoleByID(annotation.requiredRole()))){
                             return;
@@ -155,12 +155,12 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                                 }
                             }
                         }else{
-                            Shadobot.UI.logAdd("Something has gone wrong! "
-                                    +Command.class.getSimpleName()+" is looking for an user provided "+parameterTypes[i].getName());
+                            Shadobot.UI.logAdd("Something has gone wrong! " +Command.class.getSimpleName()+
+                                    " objects are not handled by the parameter assembler! (Your execute function has a parameter of inappropriate type.)");
                         }
                         if (params[i]==null) throw new InvalidParamException();
 
-                        userSuppliedParams++;
+                        userSuppliedParams++; //TODO NOT ADDED IF _ PARAM
                     }else{
                         /*USER OMITTED*/
                         if (parameterTypes[i].equals(IMessage.class)) { //the message itself
@@ -211,13 +211,15 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
     }
 
     public void register(CommandNetwork commandNetwork){
+        Shadobot.UI.logAdd("registering "+commandNetwork.getClass().getSimpleName());
         for (Class commandClass:commandNetwork.getClass().getClasses()){
+            //Shadobot.UI.logAdd("registering "+commandClass.getSimpleName()+" from commandnetwork");
             try{
+                Command command = (Command)commandClass.getConstructors()[0].newInstance();
+                Shadobot.UI.logAdd("registering "+command.getClass().getSimpleName());
                 register((Command)commandClass.newInstance());
-            } catch(InstantiationException e) {
-                System.out.println(e.toString());
-            } catch(IllegalAccessException e) {
-                System.out.println(e.toString());
+            } catch(Exception e) {
+                e.printStackTrace();
             }
         }
     }
