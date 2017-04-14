@@ -1,12 +1,9 @@
 package shadobot;
 
+import shadobot.CommandHandling.CommandDirectors.*;
 import shadobot.CommandHandling.CommandDirectors.Core.Example;
 import shadobot.CommandHandling.CommandDirectors.Core.Help;
 import shadobot.CommandHandling.CommandDirectors.Core.Roles;
-import shadobot.CommandHandling.CommandDirectors.CustomPingCreator;
-import shadobot.CommandHandling.CommandDirectors.JoinChannel;
-import shadobot.CommandHandling.CommandDirectors.RaidMute;
-import shadobot.CommandHandling.CommandDirectors.SpamPing;
 import shadobot.CommandHandling.CommandListener;
 import shadobot.UI.MainWindow;
 import shadobot.UI.MiscListeners.GuildJoinListener;
@@ -60,11 +57,12 @@ public class Shadobot {
         commandListener.register(new Help(commandListener));
         commandListener.register(new Example(commandListener));
         commandListener.register(new Roles());
-        //commandListener.register(new Music());
         commandListener.register(new JoinChannel());
         commandListener.register(new RaidMute());
         commandListener.register(new SpamPing());
         commandListener.register(new CustomPingCreator(commandListener));
+        commandListener.register(new Music());
+        commandListener.register(new Listen());
 
 
         System.out.println();

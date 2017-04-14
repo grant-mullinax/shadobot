@@ -9,7 +9,7 @@ import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
 
 @CommandData(
-        aliases = {"joinchannel","jc"},
+        aliases = {"joinchannel","jc","join"},
         description = "makes the bot join a channel"
 )
 public class JoinChannel extends Command{
