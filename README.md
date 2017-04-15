@@ -1,12 +1,12 @@
-Please provide your Discord Application token in a token.txt file with the format:
-`token = 324324gd32fdBLAHgK3424J423BLAH2kgdsJ5J32`
+Please provide your Discord Application token in a token.txt file with the format:  
+`token = 324324gd32fdBLAHgK3424J423BLAH2kgdsJ5J32`  
 *[Token can be retrieved here](https://discordapp.com/developers/applications/)*
 
-# shadobot
+# shadobot  
 
 Commands are implemented by creating a class that extends Command with annotaton @CommandData where all relevant info can be inserted. Then the command class should be instantiated and registered to the CommandHandler using the .register() method in main.
 
-### Simple Example:
+### Simple Example:  
 ```
 @CommandData(
         aliases = {"ping"},
@@ -22,7 +22,7 @@ public class Ping extends Command{
     }
 }
 ```
-Then, in main:
+Then, in main:  
 ```
 commandListener.register(new Ping());
 ```
