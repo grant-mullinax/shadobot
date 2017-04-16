@@ -39,6 +39,7 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
             IGuild guild = message.getChannel().getGuild();
             CommandData annotation = command.getClass().getAnnotation(CommandData.class);
 
+            //annotation restriction handling
             if (annotation!=null) {
                 //handle all possible trigger-dependent annotations
                 if (annotation.takeChannelMessages() && event.getMessage().getChannel().isPrivate()) return;
@@ -124,58 +125,80 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
 
                 int userSuppliedParams = 1; //0 is the command name itself
                 for (int i = 0; i < parameterTypes.length; i++) {
-                    if (isUserSupplied(paramAnnotations[i]) && splitMessage.length >= userSuppliedParams+1 &&
-                            !splitMessage[userSuppliedParams].equals("_")) {
-                        /*USER SUPPLIED*/
-                        if (parameterTypes[i].equals(String.class)) {
-                            params[i] = splitMessage[userSuppliedParams];
+                    /*--------------------------------
+                      always auto supplied parameters
+                      -------------------------------*/
+                    if (parameterTypes[i].equals(IMessage.class)) { //the message itself
+                        params[i] = message;
+                    } else if (parameterTypes[i].equals(String[].class)) { //assume they want the splitmessage
+                        params[i] = splitMessage;
+                    }else {
+                        boolean isAbsentParam = (splitMessage.length >= userSuppliedParams + 1); //if the user does not supply the parameter at all
+                        if (isAbsentParam && !splitMessage[userSuppliedParams].equals("_")) {
+                        /*--------------------------------
+                            user supplied parameters
+                         -------------------------------*/
+                            if (parameterTypes[i].equals(String.class)) {
+                                params[i] = splitMessage[userSuppliedParams];
 
-                        } else if (parameterTypes[i].equals(IVoiceChannel.class)) {
-                            for (IVoiceChannel channel:message.getGuild().getVoiceChannels()){
-                                Shadobot.UI.logAdd(channel.getName());
-                                if (channel.getName().equals(splitMessage[userSuppliedParams])){
-                                    params[i] = channel;
-                                    break;
+                            } else if (parameterTypes[i].equals(IVoiceChannel.class)) {
+                                for (IVoiceChannel channel : message.getGuild().getVoiceChannels()) {
+                                    Shadobot.UI.logAdd(channel.getName());
+                                    if (channel.getName().equals(splitMessage[userSuppliedParams])) {
+                                        params[i] = channel;
+                                        break;
+                                    }
                                 }
-                            }
 
-                        } else if (parameterTypes[i].equals(IChannel.class)) {
-                            for (IChannel channel:message.getGuild().getChannels()){
-                                if (channel.getName().equals(splitMessage[userSuppliedParams])){
-                                    params[i] = channel;
-                                    break;
+                            } else if (parameterTypes[i].equals(IChannel.class)) {
+                                for (IChannel channel : message.getGuild().getChannels()) {
+                                    if (channel.getName().equals(splitMessage[userSuppliedParams])) {
+                                        params[i] = channel;
+                                        break;
+                                    }
                                 }
-                            }
 
-                        } else if (parameterTypes[i].equals(IRole.class)) {
-                            for (IRole role:message.getGuild().getRoles()){
-                                if (role.getName().equals(splitMessage[userSuppliedParams])){
-                                    params[i] = role;
-                                    break;
+                            } else if (parameterTypes[i].equals(IRole.class)) {
+                                for (IRole role : message.getGuild().getRoles()) {
+                                    if (role.getName().equals(splitMessage[userSuppliedParams])) {
+                                        params[i] = role;
+                                        break;
+                                    }
                                 }
-                            }
-                        }else{
-                            Shadobot.UI.logAdd("Something has gone wrong! " +Command.class.getSimpleName()+
-                                    " objects are not handled by the parameter assembler! (Your execute function has a parameter of inappropriate type.)");
-                        }
-                        if (params[i]==null) throw new InvalidParamException();
 
-                        userSuppliedParams++; //TODO NOT ADDED IF _ PARAM
-                    }else{
-                        /*USER OMITTED*/
-                        if (parameterTypes[i].equals(IMessage.class)) { //the message itself
-                            params[i] = message;
-                        } else if (parameterTypes[i].equals(IVoiceChannel.class)) { //the voice channel the user is in
-                            params[i] = message.getAuthor().getConnectedVoiceChannels().get(0);
-                        } else if (parameterTypes[i].equals(IChannel.class)) { // the chat channel of the message
-                            params[i] = message.getChannel();
-                        } else if (parameterTypes[i].equals(String[].class)) { //assume they want the splitmessage
-                            params[i] = splitMessage;
-                        } else if (parameterTypes[i].equals(IGuild.class)) { //get the guild the message was sent in
-                            params[i] = message.getGuild();
-                        }else{
-                            Shadobot.UI.logAdd("Something has gone wrong! "
-                                    +Command.class.getSimpleName()+" is looking for an unprovided "+parameterTypes[i].getName());
+                            } else if (parameterTypes[i].equals(IUser.class)) {
+                                String id = splitMessage[userSuppliedParams].substring(2, splitMessage[userSuppliedParams].length() - 1);
+                                IUser user = message.getGuild().getUserByID(id);
+                                if (user != null) params[i] = user;
+
+                            } else {
+                                Shadobot.UI.logAdd("Something has gone wrong! " + Command.class.getSimpleName() +
+                                        " objects are not handled by the parameter assembler! (Your execute function has a parameter of inappropriate type.)");
+                            }
+                            if (params[i] == null) throw new InvalidParamException();
+
+                            userSuppliedParams++;
+                        } else {
+                            /*--------------------------------
+                                user omitted parameters
+                             -------------------------------*/
+
+                            if (parameterTypes[i].equals(IMessage.class)) { //the message itself
+                                params[i] = message;
+                            } else if (parameterTypes[i].equals(IVoiceChannel.class)) { //the voice channel the user is in
+                                params[i] = message.getAuthor().getConnectedVoiceChannels().get(0);
+                            } else if (parameterTypes[i].equals(IChannel.class)) { // the chat channel of the message
+                                params[i] = message.getChannel();
+                            } else if (parameterTypes[i].equals(String[].class)) { //assume they want the splitmessage
+                                params[i] = splitMessage;
+                            } else if (parameterTypes[i].equals(IGuild.class)) { //get the guild the message was sent in
+                                params[i] = message.getGuild();
+                            } else {
+                                Shadobot.UI.logAdd("Something has gone wrong! "
+                                        + Command.class.getSimpleName() + " is looking for an unprovided " + parameterTypes[i].getSimpleName());
+                                throw new InvalidParamException();
+                            }
+                            if (!isAbsentParam) userSuppliedParams++;
                         }
                     }
                 }
@@ -184,9 +207,9 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
         }
     }
 
-    private boolean isUserSupplied(Annotation[] annotations){
+    private boolean hasInfoAnnotation(Annotation[] annotations){
         for (Annotation annotation: annotations){
-            if (annotation.annotationType().equals(UserSupplied.class)) {
+            if (annotation.annotationType().equals(ParamInfo.class)) {
                 return true;
             }
         }

@@ -2,19 +2,19 @@ package shadobot.CommandHandling.CommandDirectors;
 
 import shadobot.CommandHandling.CommandAssemblyComponents.Command;
 import shadobot.CommandHandling.CommandAssemblyComponents.CommandData;
-import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
 
 @CommandData(
-        aliases = {"ping"},
-        description = "it pings!"
+        aliases = {"whisper"},
+        description = "Whisper someone"
 )
-public class Ping extends Command{
+public class Whisper extends Command{
 
-    public void execute(String string, IChannel channel) throws RateLimitException,DiscordException,
-            MissingPermissionsException {
-        channel.sendMessage(string);
+    public void execute(IUser user, String string) throws RateLimitException,DiscordException, MissingPermissionsException {
+        user.getOrCreatePMChannel().sendMessage(string);
+
     }
 }

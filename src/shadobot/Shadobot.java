@@ -59,10 +59,11 @@ public class Shadobot {
         commandListener.register(new Roles());
         commandListener.register(new JoinChannel());
         commandListener.register(new RaidMute());
+        commandListener.register(new Ping());
         commandListener.register(new SpamPing());
         commandListener.register(new CustomPingCreator(commandListener));
         commandListener.register(new Music());
-        commandListener.register(new Listen());
+        commandListener.register(new Whisper());
 
 
         System.out.println();
@@ -72,7 +73,7 @@ public class Shadobot {
 
     public static IDiscordClient createClient(String token, boolean login) { // Returns a new instance of the Discord client
         ClientBuilder clientBuilder = new ClientBuilder(); // Creates the ClientBuilder instance
-        clientBuilder.withToken(token); // Adds the login info to the builder
+        clientBuilder.withToken(token); // Adds the login info to the builder4
         try {
             if (login) {
                 return clientBuilder.login(); // Creates the client instance and logs the client in
