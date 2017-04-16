@@ -2,7 +2,7 @@ package shadobot.CommandHandling.CommandDirectors;
 
 import shadobot.CommandHandling.CommandAssemblyComponents.Command;
 import shadobot.CommandHandling.CommandAssemblyComponents.CommandData;
-import sx.blah.discord.handle.obj.IMessage;
+import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
@@ -13,8 +13,8 @@ import sx.blah.discord.util.RateLimitException;
 )
 public class Ping extends Command{
 
-    public void execute(IMessage message) throws RateLimitException,DiscordException,
+    public void execute(String string, IChannel channel) throws RateLimitException,DiscordException,
             MissingPermissionsException {
-        message.reply("pong");
+        channel.sendMessage(string);
     }
 }

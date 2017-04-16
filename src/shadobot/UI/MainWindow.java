@@ -4,10 +4,7 @@ import shadobot.CommandHandling.CommandAssemblyComponents.Command;
 import shadobot.Shadobot;
 import shadobot.UI.ParameterInput.*;
 import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IGuild;
-import sx.blah.discord.handle.obj.IRole;
-import sx.blah.discord.handle.obj.IVoiceChannel;
+import sx.blah.discord.handle.obj.*;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
@@ -49,8 +46,7 @@ public final class MainWindow {
 	private StyledDocument doc;
 	private SimpleAttributeSet docStyle;
 	
-	public void init(IDiscordClient client)
-	{
+	public void init(IDiscordClient client) {
 		window = new JFrame("Shadobot");
 		window.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 		window.setLayout(null);
@@ -96,16 +92,13 @@ public final class MainWindow {
 							for (int i = 0; i < parameterTypes.length; i++) {
 								if (typeToInputMap.get(parameterTypes[i])!=null) {
 									try {
-										JComponent element = (JComponent)typeToInputMap.get(parameterTypes[i]).getConstructors()[0].newInstance(selectedGuild);
+										JComponent element = (JComponent)typeToInputMap.get(parameterTypes[i]).getConstructor(IGuild.class).newInstance
+												(selectedGuild);
 										element.setBounds(160+(i*110),380,100,30);
 										//componentOffset+=300+10;
 										window.add(element);
 										parameterInputComponents.add(element);
-									} catch (IllegalAccessException e) {
-										e.printStackTrace();
-									} catch (InstantiationException e) {
-										e.printStackTrace();
-									} catch (InvocationTargetException e) {
+									} catch (Exception e) {
 										e.printStackTrace();
 									}
 								}
@@ -123,19 +116,7 @@ public final class MainWindow {
 		executeButton.setBounds(680,380,80,30);
 		executeButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				Object[] params = new Object[targetMethod.getParameterTypes().length];
-				for (int i = 0; i < parameterInputComponents.size(); i++) {
-					params[i] = ((ParameterInputComponent)parameterInputComponents.get(i)).getValue();
-				}
-
-				try {
-					Shadobot.UI.logAdd("Executing "+targetCommand.getClass().getSimpleName()+" from console");
-					targetMethod.invoke(targetCommand, params);
-				} catch (IllegalAccessException e){
-					e.printStackTrace();
-				} catch (InvocationTargetException e){
-					e.printStackTrace();
-				}
+				executeCommand();
 			}
 		});
 		window.add(executeButton);
@@ -158,6 +139,22 @@ public final class MainWindow {
 			verticalScrollBar.setValue(verticalScrollBar.getMaximum()+16);
 		} catch (BadLocationException e) {
 			System.out.println(e);
+		}
+	}
+
+	public void executeCommand(){
+		Object[] params = new Object[targetMethod.getParameterTypes().length];
+		for (int i = 0; i < parameterInputComponents.size(); i++) {
+			params[i] = ((ParameterInputComponent)parameterInputComponents.get(i)).getValue();
+		}
+
+		try {
+			Shadobot.UI.logAdd("Executing "+targetCommand.getClass().getSimpleName()+" from console");
+			targetMethod.invoke(targetCommand, params);
+		} catch (IllegalAccessException e){
+			e.printStackTrace();
+		} catch (InvocationTargetException e){
+			e.printStackTrace();
 		}
 	}
 
@@ -197,6 +194,7 @@ public final class MainWindow {
 			put(IRole.class, IRoleInput.class);
 			put(IVoiceChannel.class, IVoiceChannelInput.class);
 			put(String.class, StringInput.class);
+			put(IUser.class, IUserInput.class);
 		}
 	};
 }

@@ -1,9 +1,7 @@
 package shadobot.CommandHandling.CommandDirectors;
 
-import com.github.axet.vget.VGet;
 import shadobot.CommandHandling.CommandAssemblyComponents.Command;
 import shadobot.CommandHandling.CommandAssemblyComponents.CommandData;
-import shadobot.CommandHandling.CommandAssemblyComponents.UserSupplied;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.util.DiscordException;
@@ -11,7 +9,7 @@ import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
 import sx.blah.discord.util.audio.AudioPlayer;
 
-import java.io.File;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -25,17 +23,19 @@ import java.net.URL;
 )
 public class Music extends Command{
 
-    public void execute(@UserSupplied String url, @UserSupplied IGuild guild, IChannel channel) throws RateLimitException,
+    public void execute(String url, IGuild guild, IChannel channel) throws RateLimitException,
             DiscordException,
             MissingPermissionsException {
         AudioPlayer audioPlayer = AudioPlayer.getAudioPlayerForGuild(guild);
         try {
-            VGet v = new VGet(new URL(url), new File("yt-downloads"));
-            v.download();
-
+            /*VGet v = new VGet(new URL(url), new File("yt-downloads"));
+            v.download();*/
+            audioPlayer.queue(new URL(url));
             audioPlayer.setPaused(false);
         } catch (MalformedURLException e) {
             channel.sendMessage("That URL is invalid!");
+        } catch (UnsupportedAudioFileException e) {
+            channel.sendMessage("That file is invalid!");
         } catch (IOException e) {
             channel.sendMessage("An IO exception occured: " + e.getMessage());
         }

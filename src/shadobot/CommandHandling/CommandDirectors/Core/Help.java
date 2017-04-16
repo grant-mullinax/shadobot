@@ -2,7 +2,7 @@ package shadobot.CommandHandling.CommandDirectors.Core;
 
 import shadobot.CommandHandling.CommandAssemblyComponents.Command;
 import shadobot.CommandHandling.CommandAssemblyComponents.CommandData;
-import shadobot.CommandHandling.CommandAssemblyComponents.UserSupplied;
+import shadobot.CommandHandling.CommandAssemblyComponents.ParamInfo;
 import shadobot.CommandHandling.CommandListener;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.util.DiscordException;
@@ -20,7 +20,7 @@ public class Help extends Command{
         this.commandListener = commandListener;
     }
 
-    public void execute(@UserSupplied String commandName, IChannel channel) throws
+    public void execute(@ParamInfo String commandName, IChannel channel) throws
             RateLimitException,
             DiscordException,
             MissingPermissionsException {
