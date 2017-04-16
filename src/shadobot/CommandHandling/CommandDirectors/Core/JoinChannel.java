@@ -1,4 +1,4 @@
-package shadobot.CommandHandling.CommandDirectors;
+package shadobot.CommandHandling.CommandDirectors.Core;
 
 import shadobot.CommandHandling.CommandAssemblyComponents.Command;
 import shadobot.CommandHandling.CommandAssemblyComponents.CommandData;

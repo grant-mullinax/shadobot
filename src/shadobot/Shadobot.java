@@ -1,9 +1,8 @@
 package shadobot;
 
+import shadobot.CommandHandling.CommandAssemblyComponents.Command;
+import shadobot.CommandHandling.CommandDirectors.Core.*;
 import shadobot.CommandHandling.CommandDirectors.*;
-import shadobot.CommandHandling.CommandDirectors.Core.Example;
-import shadobot.CommandHandling.CommandDirectors.Core.Help;
-import shadobot.CommandHandling.CommandDirectors.Core.Roles;
 import shadobot.CommandHandling.CommandListener;
 import shadobot.UI.MainWindow;
 import shadobot.UI.MiscListeners.GuildJoinListener;
@@ -27,43 +26,46 @@ public class Shadobot {
 
     public static void main(String[] args)
     {
+        UI = new MainWindow();
+        UI.init();
+
         File tokenFile = new File("token.txt");
         String token;
-        try
-        {
+        try {
             Scanner fReader = new Scanner(tokenFile);
             String in = fReader.nextLine();
             in = in.replace("token =", "");
             in = in.trim();
             token = in;
         }
-        catch (FileNotFoundException e)
-        {
-            System.out.println("\"Token\" file missing. Please re-clone the repository.");
+        catch (FileNotFoundException e) {
+            UI.logAdd("\"Token\" file missing. Please re-clone the repository.");
             return;
         }
 
         client = createClient(token,true);
         EventDispatcher dispatcher = client.getDispatcher();
 
-
-        UI = new MainWindow();
-        UI.init(client);
-
         commandListener = new CommandListener(PREFIX);
         dispatcher.registerListener(commandListener);
         dispatcher.registerListener(new GuildJoinListener());
 
-        commandListener.register(new Help(commandListener));
-        commandListener.register(new Example(commandListener));
-        commandListener.register(new Roles());
-        commandListener.register(new JoinChannel());
-        commandListener.register(new RaidMute());
-        commandListener.register(new Ping());
-        commandListener.register(new SpamPing());
-        commandListener.register(new CustomPingCreator(commandListener));
-        commandListener.register(new Music());
-        commandListener.register(new Whisper());
+        Command[] commands = {
+                //core
+                new Help(commandListener),
+                new Example(commandListener),
+                new Roles(),
+                new JoinChannel(),
+                new Ping(),
+                new Whisper(),
+
+                new SpamPing(),
+                new CustomPingCreator(commandListener),
+                new Music(),
+                new RaidMute()
+        };
+
+        commandListener.register(commands);
 
 
         System.out.println();

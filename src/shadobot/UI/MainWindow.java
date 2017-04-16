@@ -3,7 +3,6 @@ package shadobot.UI;
 import shadobot.CommandHandling.CommandAssemblyComponents.Command;
 import shadobot.Shadobot;
 import shadobot.UI.ParameterInput.*;
-import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.*;
 
 import javax.swing.*;
@@ -46,7 +45,7 @@ public final class MainWindow {
 	private StyledDocument doc;
 	private SimpleAttributeSet docStyle;
 	
-	public void init(IDiscordClient client) {
+	public void init() {
 		window = new JFrame("Shadobot");
 		window.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 		window.setLayout(null);
@@ -92,8 +91,8 @@ public final class MainWindow {
 							for (int i = 0; i < parameterTypes.length; i++) {
 								if (typeToInputMap.get(parameterTypes[i])!=null) {
 									try {
-										JComponent element = (JComponent)typeToInputMap.get(parameterTypes[i]).getConstructor(IGuild.class).newInstance
-												(selectedGuild);
+										JComponent element = (JComponent)typeToInputMap.get(parameterTypes[i]).getConstructor(IGuild.class)
+												.newInstance(selectedGuild);
 										element.setBounds(160+(i*110),380,100,30);
 										//componentOffset+=300+10;
 										window.add(element);

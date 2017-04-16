@@ -233,6 +233,10 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
         }
     }
 
+    public void register(Command[] commands){
+        for (Command command:commands) register(command);
+    }
+
     public void register(CommandNetwork commandNetwork){
         Shadobot.UI.logAdd("registering "+commandNetwork.getClass().getSimpleName());
         for (Class commandClass:commandNetwork.getClass().getClasses()){
