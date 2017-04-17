@@ -28,8 +28,6 @@ public class Music extends Command{
             MissingPermissionsException {
         AudioPlayer audioPlayer = AudioPlayer.getAudioPlayerForGuild(guild);
         try {
-            /*VGet v = new VGet(new URL(url), new File("yt-downloads"));
-            v.download();*/
             audioPlayer.queue(new URL(url));
             audioPlayer.setPaused(false);
         } catch (MalformedURLException e) {

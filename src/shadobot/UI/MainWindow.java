@@ -12,18 +12,11 @@ import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public final class MainWindow {
-	public static IGuild selectedGuild;
-
-	public static Boolean debug = true;
-
-	private HashMap<String,IGuild> guildRegister = new HashMap<String, IGuild>(); //todo maybe i can remove the need for this using objects
 
 	private Command targetCommand;
 	private Method targetMethod;
@@ -34,7 +27,14 @@ public final class MainWindow {
 	private JMenuBar menuBar;
 
 	private JMenu serverMenu;
+	private JMenu channelListenMenu;
 	private ButtonGroup serverGroup;
+	private ButtonGroup channelListenGroup;
+
+	public static IGuild selectedGuild;
+
+	private HashMap<String,IGuild> guildRegister = new HashMap<String, IGuild>(); //todo maybe i can remove the need for this using objects
+	private HashMap<String,IChannel> channelRegister = new HashMap<String, IChannel>();
 
 	private JTextField commandline;
 	private JButton executeButton;
@@ -45,7 +45,7 @@ public final class MainWindow {
 	private StyledDocument doc;
 	private SimpleAttributeSet docStyle;
 	
-	public void init() {
+	public MainWindow() {
 		window = new JFrame("Shadobot");
 		window.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 		window.setLayout(null);
@@ -54,12 +54,13 @@ public final class MainWindow {
 		menuBar = new JMenuBar();
 
 		serverMenu = new JMenu("Server");
-		serverMenu.setMnemonic(KeyEvent.VK_A);
-		serverMenu.getAccessibleContext().setAccessibleDescription(
-				"The only menu in this program that has menu items");
 		menuBar.add(serverMenu);
 
+		channelListenMenu = new JMenu("Channel Listen");
+		menuBar.add(channelListenMenu);
+
 		serverGroup = new ButtonGroup();
+		//channelListenGroup = new ButtonGroup();
 
 		window.setJMenuBar(menuBar);
 		
@@ -142,30 +143,36 @@ public final class MainWindow {
 	}
 
 	public void executeCommand(){
-		Object[] params = new Object[targetMethod.getParameterTypes().length];
-		for (int i = 0; i < parameterInputComponents.size(); i++) {
-			params[i] = ((ParameterInputComponent)parameterInputComponents.get(i)).getValue();
+		Class[] parameterTypes = targetMethod.getParameterTypes();
+		Object[] params = new Object[parameterTypes.length];
+
+		int consoleSuppliedParams = 0;
+		for (int i = 0; i < parameterTypes.length; i++) {
+			if (parameterTypes[i].equals(IGuild.class)) {
+				params[i] = selectedGuild;
+			}else {
+				params[i] = ((ParameterInputComponent) parameterInputComponents.get(consoleSuppliedParams)).getValue();
+				consoleSuppliedParams++;
+			}
 		}
 
 		try {
 			Shadobot.UI.logAdd("Executing "+targetCommand.getClass().getSimpleName()+" from console");
 			targetMethod.invoke(targetCommand, params);
-		} catch (IllegalAccessException e){
-			e.printStackTrace();
-		} catch (InvocationTargetException e){
+		} catch (Exception e){
 			e.printStackTrace();
 		}
 	}
 
-	public void addServer(IGuild guild){
-		JRadioButtonMenuItem serverMenuItem = new JRadioButtonMenuItem(guild.getName());
+	public void addGuild(IGuild guild){
+		JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(guild.getName());
 		if (guild.getName().equals("test zone")) {
-			serverMenuItem.setSelected(true);
+			menuItem.setSelected(true);
 			setSelectedGuild(guild);
 		}
-		serverGroup.add(serverMenuItem);
-		serverMenu.add(serverMenuItem);
-		serverMenuItem.addActionListener(new ActionListener() {
+		serverGroup.add(menuItem);
+		serverMenu.add(menuItem);
+		menuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				setSelectedGuild(e.getActionCommand());
 			}
@@ -185,6 +192,23 @@ public final class MainWindow {
 
 	public void setSelectedGuild(String name){
 		setSelectedGuild(guildRegister.get(name));
+	}
+
+	public void addConnectedChannels(IGuild guild){
+		//channelRegister = new HashMap<String, IChannel>();
+		//channelListenMenu.removeAll();
+
+		channelListenMenu.add(new JMenuItem(guild.getName()));
+		channelListenMenu.addSeparator();
+
+		for (IChannel channel : guild.getChannels()) {
+			JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(channel.getName());
+
+			channelListenMenu.add(menuItem);
+
+			channelRegister.put("  "+channel.getName(), channel);
+		}
+		channelListenMenu.add(new JMenuItem(""));
 	}
 
 	public static final HashMap<Class,Class> typeToInputMap = new HashMap<Class, Class>(){ //is it too jank?

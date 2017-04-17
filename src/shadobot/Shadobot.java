@@ -27,7 +27,6 @@ public class Shadobot {
     public static void main(String[] args)
     {
         UI = new MainWindow();
-        UI.init();
 
         File tokenFile = new File("token.txt");
         String token;
@@ -61,12 +60,12 @@ public class Shadobot {
 
                 new SpamPing(),
                 new CustomPingCreator(commandListener),
+                new Echo(),
                 new Music(),
                 new RaidMute()
         };
 
         commandListener.register(commands);
-
 
         System.out.println();
         UI.logAdd("");
