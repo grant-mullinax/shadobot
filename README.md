@@ -41,25 +41,25 @@ To ping a spesific channel with your string:
 ```
 
 ### Usable objects in execute method:
-####String
+#### String
 read as itself, cannot be assumed
 
-####IChannel
+#### IChannel
 read as chat channel name in guild, assumed as channel the message was sent in
 
-####IVoiceChannel
+#### IVoiceChannel
 read as voice channel name in guild, assumed as channel the sender is currently in (if they are in one)
 
-####IRole
+#### IRole
 read as role name in guild, cannot be assumed
 
-####IUser
+#### IUser
 read as @mention, cannot be assumed
 
-####IMessage
+#### IMessage
 the message itself. will only be assumed, information should not be provided in the user message.
 
-####IGuild 
+#### IGuild 
 the guild the message was sent in. will only be assumed, information should not be provided in the user message.
 
 ### @CommandData annotation parameters:
