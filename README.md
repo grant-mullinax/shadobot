@@ -40,51 +40,55 @@ To ping a spesific channel with your string:
 !ping STRINGREPLY CHANNELNAME
 ```
 
+___
+
 ### Usable objects in execute method:
 #### String
-read as itself, cannot be assumed
+- read as itself, cannot be assumed
 
 #### IChannel
-read as chat channel name in guild, assumed as channel the message was sent in
+- read as chat channel name in guild, assumed as channel the message was sent in
 
 #### IVoiceChannel
-read as voice channel name in guild, assumed as channel the sender is currently in (if they are in one)
+- read as voice channel name in guild, assumed as channel the sender is currently in (if they are in one)
 
 #### IRole
-read as role name in guild, cannot be assumed
+- read as role name in guild, cannot be assumed
 
 #### IUser
-read as @mention, cannot be assumed
+- read as @mention, cannot be assumed
 
 #### IMessage
-the message itself. will only be assumed, information should not be provided in the user message.
+- the message itself. will only be assumed, information should not be provided in the user message.
 
 #### IGuild 
-the guild the message was sent in. will only be assumed, information should not be provided in the user message.
+- the guild the message was sent in. will only be assumed, information should not be provided in the user message.
+
+___
 
 ### @CommandData annotation parameters:
 #### String[] aliases
 ##### REQUIRED
-the initial string(s) that follow the command prefix (default: !) that will trigger this message
+- the initial string(s) that follow the command prefix (default: !) that will trigger this message
 #### String description
 ##### default "N/A"
-the description that will be provided by !help [commandname]
+- the description that will be provided by !help [commandname]
 ####String example
 #####default "N/A"
-the example that will be provided by !help [commandname]
+- the example that will be provided by !help [commandname]
 #### String requiredRole
 ##### default "N/A"
-the role required to execute this command [WILL ALLOW MULTIPLE SOON]
+- the role required to execute this command [WILL ALLOW MULTIPLE SOON]
 #### boolean requiresPrefix
 ##### default true
-if the user has to say the prefix before the command alias to execute this command
+- if the user has to say the prefix before the command alias to execute this command
 #### boolean takeChannelMessages
 ##### default true
-if this command can be executed by messages in channels in guilds
+- if this command can be executed by messages in channels in guilds
 #### boolean takePrivateMessages
 ##### default false
-if this command can be executed from private messages
+- if this command can be executed from private messages
 #### boolean deletePrompt
 ##### default false
-if the message that triggers the activation of this command should be deleted
+- if the message that triggers the activation of this command should be deleted
 
