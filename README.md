@@ -63,28 +63,28 @@ the message itself. will only be assumed, information should not be provided in 
 the guild the message was sent in. will only be assumed, information should not be provided in the user message.
 
 ### @CommandData annotation parameters:
-####String[] aliases
-#####REQUIRED
+#### String[] aliases
+##### REQUIRED
 the initial string(s) that follow the command prefix (default: !) that will trigger this message
-####String description
-#####default "N/A"
+#### String description
+##### default "N/A"
 the description that will be provided by !help [commandname]
 ####String example
 #####default "N/A"
 the example that will be provided by !help [commandname]
-####String requiredRole
-#####default "N/A"
+#### String requiredRole
+##### default "N/A"
 the role required to execute this command [WILL ALLOW MULTIPLE SOON]
-####boolean requiresPrefix
-#####default true
+#### boolean requiresPrefix
+##### default true
 if the user has to say the prefix before the command alias to execute this command
-####boolean takeChannelMessages
-#####default true
+#### boolean takeChannelMessages
+##### default true
 if this command can be executed by messages in channels in guilds
-####boolean takePrivateMessages
-#####default false
+#### boolean takePrivateMessages
+##### default false
 if this command can be executed from private messages
-####boolean deletePrompt
-#####default false
+#### boolean deletePrompt
+##### default false
 if the message that triggers the activation of this command should be deleted
 
