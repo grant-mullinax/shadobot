@@ -27,7 +27,14 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
     }
 
     public void handle(MessageReceivedEvent event) {
+
         final IMessage message = event.getMessage();
+        final IChannel channel = message.getChannel();
+
+        if (Shadobot.getUI().isListeningToChannel(channel)){
+            Shadobot.UI.logAdd("["+message.getGuild().getName()+"\\"+channel.getName()+"] "
+                    +message.getAuthor().getName()+": "+message.getContent());
+        }
 
         if (message.getAuthor().isBot()) return;
 
@@ -42,8 +49,8 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
             //annotation restriction handling
             if (annotation!=null) {
                 //handle all possible trigger-dependent annotations
-                if (annotation.takeChannelMessages() && event.getMessage().getChannel().isPrivate()) return;
-                if (annotation.takePrivateMessages() && !event.getMessage().getChannel().isPrivate()) return;
+                if (annotation.takeChannelMessages() && channel.isPrivate()) return;
+                if (annotation.takePrivateMessages() && !channel.isPrivate()) return;
 
                 /*String debugMessage = "with roles: ";
                 for (IRole role: message.getAuthor().getRolesForGuild(guild)) debugMessage += role.getID() +", ";
@@ -183,14 +190,10 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
                                 user omitted parameters
                              -------------------------------*/
 
-                            if (parameterTypes[i].equals(IMessage.class)) { //the message itself
-                                params[i] = message;
-                            } else if (parameterTypes[i].equals(IVoiceChannel.class)) { //the voice channel the user is in
+                            if (parameterTypes[i].equals(IVoiceChannel.class)) { //the voice channel the user is in
                                 params[i] = message.getAuthor().getConnectedVoiceChannels().get(0);
                             } else if (parameterTypes[i].equals(IChannel.class)) { // the chat channel of the message
                                 params[i] = message.getChannel();
-                            } else if (parameterTypes[i].equals(String[].class)) { //assume they want the splitmessage
-                                params[i] = splitMessage;
                             } else if (parameterTypes[i].equals(IGuild.class)) { //get the guild the message was sent in
                                 params[i] = message.getGuild();
                             } else {
@@ -239,9 +242,10 @@ public class CommandListener implements IListener<MessageReceivedEvent> {
 
     public void register(CommandNetwork commandNetwork){
         Shadobot.UI.logAdd("registering "+commandNetwork.getClass().getSimpleName());
-        for (Class commandClass:commandNetwork.getClass().getClasses()){
+        for (Class commandClass:commandNetwork.getSubclasses()){
             //Shadobot.UI.logAdd("registering "+commandClass.getSimpleName()+" from commandnetwork");
             try{
+                for (Class c: commandClass.getConstructors()[0].getParameterTypes()) Shadobot.UI.logAdd(c.getSimpleName());
                 Command command = (Command)commandClass.getConstructors()[0].newInstance();
                 Shadobot.UI.logAdd("registering "+command.getClass().getSimpleName());
                 register((Command)commandClass.newInstance());

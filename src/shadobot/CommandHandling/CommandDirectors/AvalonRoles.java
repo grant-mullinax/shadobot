@@ -12,10 +12,9 @@ import sx.blah.discord.util.RateLimitException;
 
 import java.util.HashMap;
 
-/**
- * Created by shado on 3/26/2017.
- */
 public class AvalonRoles extends CommandNetwork {
+    private Class[] subclasses = {newAvalon.class, submitRole.class, sendRoles.class};
+
     private HashMap<IUser,String> playerRoles = new HashMap<IUser, String>();
     private IChannel responseChannel;
 
@@ -46,6 +45,12 @@ public class AvalonRoles extends CommandNetwork {
         }
     }
 
+    @CommandData(
+            aliases = {"avalonfinish"},
+            description = "defines your role",
+            takeChannelMessages = false,
+            requiresPrefix = false
+    )
     public class sendRoles extends Command{
         public void execute(IMessage message, String args) throws RateLimitException,DiscordException,
                 MissingPermissionsException {

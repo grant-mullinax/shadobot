@@ -2,7 +2,7 @@ package shadobot.UI;
 
 import shadobot.CommandHandling.CommandAssemblyComponents.Command;
 import shadobot.Shadobot;
-import shadobot.UI.ParameterInput.*;
+import shadobot.UI.UIComponents.ParameterInput.*;
 import sx.blah.discord.handle.obj.*;
 
 import javax.swing.*;
@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public final class MainWindow {
+	private Shadobot shadobot;
 
 	private Command targetCommand;
 	private Method targetMethod;
@@ -34,7 +35,7 @@ public final class MainWindow {
 	public static IGuild selectedGuild;
 
 	private HashMap<String,IGuild> guildRegister = new HashMap<String, IGuild>(); //todo maybe i can remove the need for this using objects
-	private HashMap<String,IChannel> channelRegister = new HashMap<String, IChannel>();
+	private HashMap<IChannel,JCheckBoxMenuItem> channelRegister = new HashMap<IChannel,JCheckBoxMenuItem>();
 
 	private JTextField commandline;
 	private JButton executeButton;
@@ -46,6 +47,7 @@ public final class MainWindow {
 	private SimpleAttributeSet docStyle;
 	
 	public MainWindow() {
+
 		window = new JFrame("Shadobot");
 		window.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 		window.setLayout(null);
@@ -77,7 +79,8 @@ public final class MainWindow {
 		commandline.setBounds(10,380,140,30);
 		commandline.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				Command command = Shadobot.commandListener.getRegisteredCommand(Shadobot.commandListener.getPrefix()+commandline.getText().toLowerCase());
+				Command command = Shadobot.getCommandListener().getRegisteredCommand(Shadobot.getCommandListener().getPrefix()+commandline.getText()
+						.toLowerCase());
 				if (command!=null){
 					for (Method method:command.getClass().getMethods()) {
 						if (method.getName().equals("execute")) {
@@ -206,9 +209,13 @@ public final class MainWindow {
 
 			channelListenMenu.add(menuItem);
 
-			channelRegister.put("  "+channel.getName(), channel);
+			channelRegister.put(channel,menuItem);
 		}
 		channelListenMenu.add(new JMenuItem(""));
+	}
+
+	public boolean isListeningToChannel(IChannel channel){
+		return channelRegister.get(channel).getState();
 	}
 
 	public static final HashMap<Class,Class> typeToInputMap = new HashMap<Class, Class>(){ //is it too jank?

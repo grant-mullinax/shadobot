@@ -17,12 +17,13 @@ import java.util.Scanner;
 
 
 public class Shadobot {
+    public static MainWindow UI; //for ease of debug
+
     private static final String PREFIX = "!";
     private static final String VERSION = "ABCDEFG";
 
-    public static IDiscordClient client;
-    public static MainWindow UI;
-    public static CommandListener commandListener;
+    private static IDiscordClient client;
+    private static CommandListener commandListener;
 
     public static void main(String[] args)
     {
@@ -85,6 +86,16 @@ public class Shadobot {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static CommandListener getCommandListener(){
+        return commandListener;
+    }
+    public static MainWindow getUI(){
+        return UI;
+    }
+    public static IDiscordClient getClient(){
+        return client;
     }
 }
 

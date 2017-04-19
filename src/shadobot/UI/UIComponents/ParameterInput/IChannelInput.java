@@ -1,4 +1,4 @@
-package shadobot.UI.ParameterInput;
+package shadobot.UI.UIComponents.ParameterInput;
 
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
